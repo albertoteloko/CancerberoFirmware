@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+*.bin
+AWS.h
+
+.idea/
+.gradle/
+build/
+out/
+cmake-build-debug/
