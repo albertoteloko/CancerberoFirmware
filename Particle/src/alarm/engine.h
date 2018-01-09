@@ -68,6 +68,15 @@ namespace {
             return setStatus(newStatus, false, source);
         }
 
+        static void key(String source) {
+            log.info("KEY trigger!");
+            if (AlarmConfig::getStatus() != AS_IDLE) {
+                setStatus(AS_IDLE, source);
+            } else {
+                setStatus(AS_ACTIVATING, source);
+            }
+        }
+
     private:
         static RemoteLog log;
         static bool pinValues[MASTER_PIN_NUMBER];
@@ -153,12 +162,7 @@ namespace {
                     setStatus(AS_SUSPICIOUS, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_KEY) {
                     if (currentStatus != AS_SABOTAGE) {
-                        log.info("KEY trigger!");
-                        if (currentStatus != AS_IDLE) {
-                            setStatus(AS_IDLE, "P:" + fromPinIds(pin.id));
-                        } else {
-                            setStatus(AS_ACTIVATING, "P:" + fromPinIds(pin.id));
-                        }
+                        key("P:" + fromPinIds(pin.id));
                     }
                 }
             }

@@ -6,7 +6,7 @@
 
 #define CARD_CONFIG_EEPROM_ADDRESS SERVER_DEFINITION_EEPROM_ADDRESS +  sizeof(EthernetGatewayConfigStruct) + 10
 #define CARD_NUMBER 20
-#define CARD_ID_BYTES 7
+#define CARD_ID_BYTES 10
 
 #define NO_ID { 0,0,0,0,0,0,0};
 
@@ -56,7 +56,6 @@ namespace {
         bool setupMode = false;
         SPIPort spi = SPI_UNKNOWN;
         PinIds ssPin = PI_UNKNOWN;
-        byte masterId[CARD_ID_BYTES] = NO_ID;
         byte cards[CARD_NUMBER][CARD_ID_BYTES];
     };
 
@@ -67,18 +66,13 @@ namespace {
         static bool setupMode;
         static SPIPort spi;
         static PinIds ssPin;
-        static byte masterId[CARD_ID_BYTES];
         static byte cards[CARD_NUMBER][CARD_ID_BYTES];
 
-        static void set(SPIPort newSpi, PinIds newSSPin, byte newMasterId[CARD_ID_BYTES]) {
+        static void set(SPIPort newSpi, PinIds newSSPin) {
             enabled = true;
             setupMode = false;
             spi = newSpi;
             ssPin = newSSPin;
-
-            for (int i = 0; i < CARD_ID_BYTES; ++i) {
-                masterId[i] = newMasterId[i];
-            }
 
             save();
         }
@@ -91,10 +85,6 @@ namespace {
 
         static void save() {
             CardConfigStruct tmp = CardConfigStruct();
-
-            for (int i = 0; i < CARD_ID_BYTES; ++i) {
-                tmp.masterId[i] = masterId[i];
-            }
 
             tmp.enabled = enabled;
             tmp.setupMode = setupMode;
@@ -118,10 +108,6 @@ namespace {
 
     private:
         static void loadFromConfig(CardConfigStruct config) {
-            for (int i = 0; i < CARD_ID_BYTES; ++i) {
-                masterId[i] = config.masterId[i];
-            }
-
             enabled = config.enabled;
             setupMode = config.setupMode;
             spi = config.spi;
@@ -139,7 +125,6 @@ namespace {
     bool CardConfig::setupMode = false;
     SPIPort CardConfig::spi = SPI_UNKNOWN;
     PinIds CardConfig::ssPin = PI_UNKNOWN;
-    byte CardConfig::masterId[CARD_ID_BYTES] = NO_ID;
     byte CardConfig::cards[CARD_NUMBER][CARD_ID_BYTES];
 }
 #endif

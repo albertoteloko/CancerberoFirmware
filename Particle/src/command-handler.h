@@ -376,14 +376,8 @@ namespace {
                 }
 
                 start = end + 1;
-                end = input.indexOf("|", start);
 
-                if (end == -1) {
-                    log.error("SS pin not found");
-                    return false;
-                }
-
-                String pinIdsVal = input.substring(start, end);
+                String pinIdsVal = input.substring(start);
                 PinIds ssPin = toPinIds(pinIdsVal);
 
                 if (ssPin == PI_UNKNOWN) {
@@ -391,23 +385,11 @@ namespace {
                     return false;
                 }
 
-                start = end + 1;
-
-                String masterIdVal = input.substring(start);
-                byte masterId[CARD_ID_BYTES];
-                bool idResult = toCardId(masterIdVal, masterId);
-
-                if (!idResult) {
-                    log.error("Unknown master id: " + masterIdVal);
-                    return false;
-                }
-
                 log.info("New Values!");
                 log.info("SPI: " + fromSPIPort(spi));
                 log.info("SS Pin: " + fromPinIds(ssPin));
-                log.info("Master Id: " + fromCardId(masterId));
 
-                Card::enable(spi, ssPin, masterId);
+                Card::enable(spi, ssPin);
                 return true;
             }
         }

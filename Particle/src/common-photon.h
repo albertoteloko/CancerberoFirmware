@@ -31,8 +31,8 @@ enum PinIds {
 };
 
 namespace {
-    static SPIClass getSPI(SPIPort input){
-        switch (input){
+    static SPIClass getSPI(SPIPort input) {
+        switch (input) {
             case SPI_0:
                 return SPI;
             case SPI_1:
