@@ -38,7 +38,13 @@ namespace {
         static void loop() {
             Alarm::loop();
             EthernetGateway::loop();
-            Card::loop();
+            BeepMode result = Card::loop();
+
+            if (result == BM_GRANTED) {
+                beepGranted();
+            }else if (result == BM_NOT_GRANTED) {
+                beepNotGranted();
+            }
 
             pingLoop();
 
@@ -52,6 +58,25 @@ namespace {
             speakerLoop();
         }
 
+        static void beepGranted() {
+            digitalWrite(LED_PIN, HIGH);
+            noTone(SPEAKER_PIN);
+            tone(SPEAKER_PIN, 1500, 600);
+            delay(600);
+            tone(SPEAKER_PIN, 3000, 1500);
+            digitalWrite(LED_PIN, LOW);
+            noTone(SPEAKER_PIN);
+        }
+
+        static void beepNotGranted() {
+            digitalWrite(LED_PIN, HIGH);
+            noTone(SPEAKER_PIN);
+            tone(SPEAKER_PIN, 600, 600);
+            delay(600);
+            tone(SPEAKER_PIN, 600, 1500);
+            digitalWrite(LED_PIN, LOW);
+            noTone(SPEAKER_PIN);
+        }
 
     private:
         static RemoteLog log;
@@ -243,7 +268,6 @@ namespace {
         static void
         loopSpeakerBeep(long statusDuration, long frequency, long beepDuration, long minCycleTime, long maxCycleTime) {
             if (beepChange <= millis()) {
-                log.info("speakerChange");
                 if (!beeping) {
                     tone(SPEAKER_PIN, frequency);
                     beeping = true;

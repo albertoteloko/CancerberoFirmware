@@ -28,7 +28,8 @@ namespace {
 
             Particle.function("C.enable", &enableCard);
             Particle.function("C.disable", &disableCard);
-            Particle.function("C.setup", &toggleSetupCard);
+            Particle.function("C.add", &addCard);
+            Particle.function("C.del", &removeCard);
         }
 
         static bool isGatewayMessage(String input) {
@@ -234,13 +235,53 @@ namespace {
             }
         }
 
-        static int toggleSetupCard(String input) {
+        static int addCard(String input) {
             if (isGatewayMessage(input)) {
                 IPAddress ip = getRemoteIp(input);
                 String message = getMessage(input);
-                return EthernetGateway::sendCommand(ip, "C.setup", message);
+                return EthernetGateway::sendCommand(ip, "C.add", message);
             } else {
-                return Card::toggleSetup();
+                byte cardId[CARD_ID_BYTES];
+                bool parseResult = toCardId(input, cardId);
+
+                if (!parseResult) {
+                    log.error("Invalid card id: " + input);
+                    return -1;
+                }
+                log.info("Adding card id: " + fromCardId(cardId));
+                int result = CardConfig::add(cardId);
+
+                if (result == ALREADY_ADDED) {
+                    log.error("Unable to add card id: " + fromCardId(cardId) + " already added");
+                } else if (result == NOT_SPACE_LEFT) {
+                    log.error("Unable to add card id: " + fromCardId(cardId) + " not space left");
+                }
+
+                return result;
+            }
+        }
+
+        static int removeCard(String input) {
+            if (isGatewayMessage(input)) {
+                IPAddress ip = getRemoteIp(input);
+                String message = getMessage(input);
+                return EthernetGateway::sendCommand(ip, "C.del", message);
+            } else {
+                byte cardId[CARD_ID_BYTES];
+                bool parseResult = toCardId(input, cardId);
+
+                if (!parseResult) {
+                    log.error("Invalid card id: " + input);
+                    return -1;
+                }
+
+                log.info("Remove card id: " + fromCardId(cardId));
+                int result = CardConfig::remove(cardId);
+
+                if (result == NOT_FOUND) {
+                    log.error("Unable to remove card id: " + fromCardId(cardId) + " not found");
+                }
+                return result;
             }
         }
 

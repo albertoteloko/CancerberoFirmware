@@ -6,6 +6,7 @@
 #include "../common.h"
 #include "config.h"
 #include "../alarm/engine.h"
+#include "../node/engine.h"
 
 #include <SPI.h>
 #include <MFRC522.h>
@@ -13,6 +14,12 @@
 #define UNUSED_PIN  UINT8_MAX
 
 namespace {
+
+    enum BeepMode {
+        BM_NODE,
+        BM_GRANTED,
+        BM_NOT_GRANTED
+    };
 
     class CardConfig;
 
@@ -38,14 +45,6 @@ namespace {
             CardConfig::save();
         }
 
-        static int toggleSetup() {
-            return false;
-        }
-
-        static int disableSetup() {
-            return false;
-        }
-
         static void setup() {
             if (CardConfig::enabled) {
                 if (CardConfig::spi != SPI_UNKNOWN) {
@@ -63,18 +62,28 @@ namespace {
             }
         }
 
-        static void loop() {
+        static BeepMode loop() {
+            BeepMode result= BM_NODE;
+
             if (CardConfig::enabled) {
                 bool successRead = getID();  // sets successRead to 1 when we get read from reader otherwise 0
 
                 if (successRead) {
                     String id = fromCardId(readCard);
-                    log.debug("Read card id: " + id);
-                    Alarm::key("C:" + id);
+                    if (CardConfig::contains(readCard)) {
+                        log.debug("Read valid card id: " + id);
+                        result = BM_GRANTED;
+                        Alarm::key("C:" + id);
+                    } else {
+                        log.warn("Read invalid card id: " + id);
+                        result = BM_NOT_GRANTED;
+                    }
                 } else {
                     log.trace("No ID :(");
                 }
             }
+
+            return result;
         }
 
     private:
