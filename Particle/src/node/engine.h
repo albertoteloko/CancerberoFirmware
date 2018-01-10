@@ -63,7 +63,8 @@ namespace {
             noTone(SPEAKER_PIN);
             tone(SPEAKER_PIN, 1500, 600);
             delay(600);
-            tone(SPEAKER_PIN, 3000, 1500);
+            tone(SPEAKER_PIN, 800, 600);
+            delay(600);
             digitalWrite(LED_PIN, LOW);
             noTone(SPEAKER_PIN);
         }
@@ -71,9 +72,8 @@ namespace {
         static void beepNotGranted() {
             digitalWrite(LED_PIN, HIGH);
             noTone(SPEAKER_PIN);
-            tone(SPEAKER_PIN, 600, 600);
-            delay(600);
-            tone(SPEAKER_PIN, 600, 1500);
+            tone(SPEAKER_PIN, 600, 500);
+            delay(500);
             digitalWrite(LED_PIN, LOW);
             noTone(SPEAKER_PIN);
         }
