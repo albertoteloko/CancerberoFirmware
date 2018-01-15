@@ -61,9 +61,9 @@ namespace {
         static void beepGranted() {
             digitalWrite(LED_PIN, HIGH);
             noTone(SPEAKER_PIN);
-            tone(SPEAKER_PIN, 1500, 600);
+            tone(SPEAKER_PIN, 1200, 600);
             delay(600);
-            tone(SPEAKER_PIN, 800, 600);
+            tone(SPEAKER_PIN, 2000, 600);
             delay(600);
             digitalWrite(LED_PIN, LOW);
             noTone(SPEAKER_PIN);
@@ -134,7 +134,6 @@ namespace {
                 ledChange = millis();
                 noTone(SPEAKER_PIN);
                 digitalWrite(LED_PIN, LOW);
-                EventDispatcher::publishNodeStatusChange(status);
 
                 if (newStatus == NS_ALARMED) {
                     tone(SPEAKER_PIN, 3000);
