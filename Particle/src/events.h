@@ -46,7 +46,7 @@ namespace {
 
         static void publishPinChange(String pinName, bool currentValue) {
             StaticJsonBuffer<256> jsonBuffer;
-            String name = "pin-value-change";
+            String name = "alarm-pin-changed";
 
             JsonObject &root = jsonBuffer.createObject();
             root["type"] = name;
@@ -62,7 +62,7 @@ namespace {
 
         static void publishPinActivated(String pinName) {
             StaticJsonBuffer<256> jsonBuffer;
-            String name = "pin-activated";
+            String name = "alarm-pin-activated";
 
             JsonObject &root = jsonBuffer.createObject();
             root["type"] = name;
