@@ -14,7 +14,7 @@ namespace {
     public:
         static void start() {
             Particle.variable("L.level", &RemoteLog::levelName, STRING);
-            Particle.variable("MN.status", &(AlarmConfig::statusName), STRING);
+            Particle.variable("A.status", &(AlarmConfig::statusName), STRING);
 
             Particle.function("clear", &clear);
             Particle.function("L.level", &setLogLevel);
