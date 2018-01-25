@@ -4,7 +4,6 @@
 #include "common.h"
 #include <ArduinoJson.h>
 
-#define AWS_NAME  "AWS"
 
 namespace {
 
@@ -25,26 +24,26 @@ namespace {
 
             String jsonStr;
             root.printTo(jsonStr);
-            publish(AWS_NAME, jsonStr);
+            publish(name, jsonStr);
         }
 
         static void publishAlarmStatusChange(AlarmStatus status, String source) {
             StaticJsonBuffer<256> jsonBuffer;
-            String name = "alarm-status-change";
+            String name = "alarm-status-changed";
 
             JsonObject &root = jsonBuffer.createObject();
             root["type"] = name;
             root["nodeId"] = nodeId;
-            root["status"] = fromAlarmStatus(status);
+            root["value"] = fromAlarmStatus(status);
             root["source"] = source;
             root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
 
             String jsonStr;
             root.printTo(jsonStr);
-            publish(AWS_NAME, jsonStr);
+            publish(name, jsonStr);
         }
 
-        static void publishPinChange(String pinName, bool currentValue) {
+        static void publishPinChange(String pinName, int currentValue) {
             StaticJsonBuffer<256> jsonBuffer;
             String name = "alarm-pin-changed";
 
@@ -52,15 +51,15 @@ namespace {
             root["type"] = name;
             root["nodeId"] = nodeId;
             root["pinId"] = pinName;
-            root["value"] = currentValue ? "true" : "false";
+            root["value"] = currentValue;
             root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
 
             String jsonStr;
             root.printTo(jsonStr);
-            publish(AWS_NAME, jsonStr);
+            publish(name, jsonStr);
         }
 
-        static void publishPinActivated(String pinName) {
+        static void publishPinActivated(String pinName, int currentValue) {
             StaticJsonBuffer<256> jsonBuffer;
             String name = "alarm-pin-activated";
 
@@ -68,25 +67,12 @@ namespace {
             root["type"] = name;
             root["nodeId"] = nodeId;
             root["pinId"] = pinName;
+            root["value"] = currentValue;
             root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
 
             String jsonStr;
             root.printTo(jsonStr);
-            publish(AWS_NAME, jsonStr);
-        }
-
-        static void publishPing() {
-            StaticJsonBuffer<256> jsonBuffer;
-            String name = "ping";
-
-            JsonObject &root = jsonBuffer.createObject();
-            root["type"] = name;
-            root["nodeId"] = nodeId;
-            root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
-
-            String jsonStr;
-            root.printTo(jsonStr);
-            publish(AWS_NAME, jsonStr);
+            publish(name, jsonStr);
         }
 
         static void publish(String eventName) {

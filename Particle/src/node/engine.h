@@ -8,7 +8,6 @@
 #include "../ethernet-gateway/engine.h"
 #include "../card/engine.h"
 
-#define DEFAULT_PING_PERIOD                 60 * 1000
 #define DEFAULT_ACTIVATING_BEEP_DURATION                 400
 #define DEFAULT_ACTIVATING_BEEP_FREQUENCY                 400
 #define DEFAULT_ACTIVATING_BEEP_PERIOD_MIN                 1200
@@ -45,8 +44,6 @@ namespace {
             }else if (result == BM_NOT_GRANTED) {
                 beepNotGranted();
             }
-
-            pingLoop();
 
             NodeStatus currentStatus = getCurrentStatus();
 
@@ -88,14 +85,6 @@ namespace {
         static unsigned long statusTime;
         static unsigned long beepChange;
         static unsigned long ledChange;
-
-        static void pingLoop() {
-            if (nextPing <= millis()) {
-                log.info("Ping");
-                EventDispatcher::publishPing();
-                nextPing = millis() + DEFAULT_PING_PERIOD;
-            }
-        }
 
         static NodeStatus getCurrentStatus() {
             switch (AlarmConfig::getStatus()) {

@@ -79,7 +79,7 @@ namespace {
 
     private:
         static RemoteLog log;
-        static bool pinValues[MASTER_PIN_NUMBER];
+        static int pinValues[MASTER_PIN_NUMBER];
         static unsigned long statusTime;
 
         static void enableOutput(int pin) {
@@ -128,8 +128,8 @@ namespace {
         }
 
         static void readSensor(int pinIndex, AlarmPin pin) {
-            bool lastValue = pinValues[pinIndex];
-            bool currentValue = digitalRead(pin.id);
+            int lastValue = pinValues[pinIndex];
+            int currentValue = digitalRead(pin.id);
 
             if (currentValue != lastValue) {
                 pinChanged(pin, currentValue);
@@ -137,7 +137,7 @@ namespace {
             }
         }
 
-        static void pinChanged(AlarmPin pin, bool value) {
+        static void pinChanged(AlarmPin pin, int value) {
             String pinName = fromPinIds(pin.id);
             AlarmStatus currentStatus = AlarmConfig::getStatus();
             log.info("Changed " + pinName + " to " + (value ? "true" : "false") + " - Mode: " + fromPinMode(pin.mode));
@@ -149,7 +149,7 @@ namespace {
             if (pin.mode == value) {
                 log.info("Activated " + pinName + " - " + fromPinType(pin.type));
 
-                EventDispatcher::publishPinActivated(pinName);
+                EventDispatcher::publishPinActivated(pinName, value);
 
                 if (pin.type == PT_SABOTAGE_IN) {
                     log.warn("The node is under sabotage!");
@@ -181,7 +181,7 @@ namespace {
     };
 
     RemoteLog Alarm::log = RemoteLog("alarm-engine");
-    bool Alarm::pinValues[MASTER_PIN_NUMBER];
+    int Alarm::pinValues[MASTER_PIN_NUMBER];
     unsigned long Alarm::statusTime = millis();
 }
 #endif
