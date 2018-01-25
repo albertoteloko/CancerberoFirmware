@@ -75,6 +75,20 @@ namespace {
             publish(name, jsonStr);
         }
 
+       static void publishPing() {
+            StaticJsonBuffer<256> jsonBuffer;
+            String name = "ping";
+
+            JsonObject &root = jsonBuffer.createObject();
+            root["type"] = name;
+            root["nodeId"] = nodeId;
+            root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
+
+            String jsonStr;
+            root.printTo(jsonStr);
+            publish(name, jsonStr);
+        }
+
         static void publish(String eventName) {
             StaticJsonBuffer<256> jsonBuffer;
 
