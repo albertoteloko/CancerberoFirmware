@@ -57,7 +57,34 @@ enum DPinMode {
     PM_LOW = LOW
 };
 
+enum DPinInput {
+    PIN_UNKNOWN = -0x01,
+    PIN_DIGITAL = 0x01,
+    PIN_ANALOG = 0x02
+};
+
 namespace {
+
+    DPinInput toPinInput(String input) {
+        if (compareIgnoringCase(input, "DIGITAL") || compareIgnoringCase(input, "D")) {
+            return PIN_DIGITAL;
+        } else if (compareIgnoringCase(input, "ANALOG") || compareIgnoringCase(input, "A")) {
+            return PIN_ANALOG;
+        } else {
+            return PIN_UNKNOWN;
+        }
+    }
+
+    String fromPinInput(DPinInput input) {
+        switch (input) {
+            case PIN_DIGITAL:
+                return "DIGITAL";
+            case PIN_ANALOG:
+                return "ANALOG";
+            default:
+                return "UNKNOWN";
+        }
+    }
 
     AlarmStatus toAlarmStatus(String input) {
         if (compareIgnoringCase(input, "IDLE")) {

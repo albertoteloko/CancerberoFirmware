@@ -14,6 +14,8 @@ namespace {
         PinIds id;
         PinType type = PT_UNKNOWN;
         DPinMode mode = PM_UNKNOWN;
+        DPinInput input = PIN_UNKNOWN;
+        int threshold;
     };
 
     struct AlarmConfigStruct {

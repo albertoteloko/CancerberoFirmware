@@ -127,20 +127,21 @@ namespace {
                         } else {
                             log.info("Invalid suspicious time: " + input);
                         }
-                    }
-                    AlarmPin pin = loadAlarmPin(part);
+                    } else{
+                        AlarmPin pin = loadAlarmPin(part);
 
-                    if (pin.id != PI_UNKNOWN) {
-                        if (node++ == MASTER_PIN_NUMBER) {
-                            log.error("Too much pin, max number are: " + String(MASTER_PIN_NUMBER));
-                            return false;
+                        if (pin.id != PI_UNKNOWN) {
+                            if (node++ == MASTER_PIN_NUMBER) {
+                                log.error("Too much pin, max number are: " + String(MASTER_PIN_NUMBER));
+                                return false;
+                            } else {
+                                log.info("Part: " + part);
+                                pins[node] = pin;
+                            }
                         } else {
-                            log.info("Part: " + part);
-                            pins[node] = pin;
+                            log.error("Unknown pin definition: '" + part + "'");
+                            return false;
                         }
-                    } else {
-                        log.error("Unknown pin definition: '" + part + "'");
-                        return false;
                     }
                     start = end + 1;
                 }
@@ -184,7 +185,38 @@ namespace {
             }
 
             start = end + 1;
+            end = pinDefinition.indexOf("|", start);
 
+            if (end == -1) {
+                log.error("Input not found");
+                return NO_PIN;
+            }
+
+            String inputVal = pinDefinition.substring(start, end);
+            DPinInput input = toPinInput(inputVal);
+
+            if (input == PIN_UNKNOWN) {
+                log.error("Unknown input: " + inputVal);
+                return NO_PIN;
+            }
+
+            start = end + 1;
+            end = pinDefinition.indexOf("|", start);
+
+            if (end == -1) {
+                log.error("Threshold not found");
+                return NO_PIN;
+            }
+
+            String thresholdVal = pinDefinition.substring(start, end);
+            int threshold = atoi(thresholdVal);
+
+            if (threshold > 0) {
+                log.error("Unknown threshold: " + thresholdVal);
+                return NO_PIN;
+            }
+
+            start = end + 1;
             String modeVal = pinDefinition.substring(start);
             DPinMode mode = toPinMode(modeVal);
 
@@ -198,6 +230,8 @@ namespace {
             pin.id = id;
             pin.type = type;
             pin.mode = mode;
+            pin.input = input;
+            pin.threshold = threshold;
 
             return pin;
         }
