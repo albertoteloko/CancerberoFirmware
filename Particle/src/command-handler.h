@@ -111,13 +111,15 @@ namespace {
 
                 while ((end = input.indexOf(",", start)) > -1) {
                     String part = input.substring(start, end);
-                    if (index++ == 0) {
+                    log.info("Part: " + part);
+                    if (index == 0) {
                         int input = atoi(part);
 
                         if (input > 0) {
                             activatingTime = input;
                         } else {
                             log.info("Invalid activating time: " + input);
+                            return false;
                         }
                     } else if (index == 1) {
                         int input = atoi(part);
@@ -126,8 +128,9 @@ namespace {
                             suspiciousTime = input;
                         } else {
                             log.info("Invalid suspicious time: " + input);
+                            return false;
                         }
-                    } else{
+                    } else {
                         AlarmPin pin = loadAlarmPin(part);
 
                         if (pin.id != PI_UNKNOWN) {
@@ -135,7 +138,6 @@ namespace {
                                 log.error("Too much pin, max number are: " + String(MASTER_PIN_NUMBER));
                                 return false;
                             } else {
-                                log.info("Part: " + part);
                                 pins[node] = pin;
                             }
                         } else {
@@ -143,6 +145,7 @@ namespace {
                             return false;
                         }
                     }
+                    index += 1;
                     start = end + 1;
                 }
 
@@ -152,6 +155,7 @@ namespace {
         }
 
         static const AlarmPin loadAlarmPin(String pinDefinition) {
+            log.info("Pin input: "  + pinDefinition);
             int start = 0;
             int end = pinDefinition.indexOf("|");
 
@@ -211,7 +215,7 @@ namespace {
             String thresholdVal = pinDefinition.substring(start, end);
             int threshold = atoi(thresholdVal);
 
-            if (threshold > 0) {
+            if (threshold < 0) {
                 log.error("Unknown threshold: " + thresholdVal);
                 return NO_PIN;
             }
@@ -325,6 +329,7 @@ namespace {
                 String message = getMessage(input);
                 return EthernetGateway::sendCommand(ip, "clear", message);
             } else {
+                log.info("Clear node");
                 EEPROM.clear();
                 disableAlarm(input);
                 disableEthernetGateway(input);
