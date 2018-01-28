@@ -203,9 +203,9 @@ namespace {
     }
 
     DPinMode toPinMode(String input) {
-        if (compareIgnoringCase(input, "LOW")) {
+        if (compareIgnoringCase(input, "LOW") || compareIgnoringCase(input, "L")) {
             return PM_LOW;
-        } else if (compareIgnoringCase(input, "HIGH")) {
+        } else if (compareIgnoringCase(input, "HIGH") ||compareIgnoringCase(input, "H")) {
             return PM_HIGH;
         } else {
             return PM_UNKNOWN;
