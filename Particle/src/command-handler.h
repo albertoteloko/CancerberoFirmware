@@ -33,11 +33,11 @@ namespace {
         }
 
         static bool isGatewayMessage(String input) {
-            return input.indexOf("@") > -1;
+            return input.indexOf("#") > -1;
         }
 
         static IPAddress getRemoteIp(String input) {
-            String ipVal = input.substring(0, input.indexOf("@"));
+            String ipVal = input.substring(0, input.indexOf("#"));
 
             IPAddress ip = toIP(ipVal);
             bool ipResult = validIp(ip);
@@ -48,7 +48,7 @@ namespace {
         }
 
         static String getMessage(String input) {
-            return input.substring(input.indexOf("@") + 1);
+            return input.substring(input.indexOf("#") + 1);
         }
 
         static int setLogLevel(String input) {
@@ -255,7 +255,7 @@ namespace {
             if (isGatewayMessage(input)) {
                 IPAddress ip = getRemoteIp(input);
                 String message = getMessage(input);
-                return EthernetGateway::sendCommand(ip, "EW.disable", message);
+                return EthernetGateway::sendCommand(ip, "EG.disable", message);
             } else {
                 EthernetGateway::disable();
                 return true;
@@ -342,7 +342,7 @@ namespace {
             if (isGatewayMessage(input)) {
                 IPAddress ip = getRemoteIp(input);
                 String message = getMessage(input);
-                return EthernetGateway::sendCommand(ip, "EW.enable", message);
+                return EthernetGateway::sendCommand(ip, "EG.enable", message);
             } else {
                 int start = 0;
                 int end = input.indexOf("|");

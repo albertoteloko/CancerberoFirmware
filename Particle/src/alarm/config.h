@@ -7,6 +7,7 @@
 
 #define DEFAULT_ACTIVATING_TIME             60000
 #define DEFAULT_SUSPICIOUS_TIME             30000
+#define SOURCE_LENGTH                       50
 
 namespace {
 
@@ -21,6 +22,7 @@ namespace {
     struct AlarmConfigStruct {
         bool enabled = false;
         AlarmStatus status = AS_UNKNOWN;
+        char statusSource[SOURCE_LENGTH];
         DPinMode outputMode = PM_HIGH;
         int activatingTime = DEFAULT_ACTIVATING_TIME;
         int suspiciousTime = DEFAULT_SUSPICIOUS_TIME;
@@ -32,6 +34,7 @@ namespace {
     private:
         static RemoteLog log;
         static AlarmStatus status;
+        static char statusSource[SOURCE_LENGTH];
         static AlarmPin pins[MASTER_PIN_NUMBER];
     public:
         static bool enabled;
@@ -71,10 +74,22 @@ namespace {
             return status;
         }
 
-        static void setStatus(AlarmStatus newStatus) {
+
+        static String getStatusSource() {
+            return String(statusSource);
+        }
+
+
+        static void setStatus(AlarmStatus newStatus, const char source[SOURCE_LENGTH]) {
             status = newStatus;
             statusName = fromAlarmStatus(newStatus);
+
+            for (int i = 0; i < SOURCE_LENGTH; ++i) {
+                statusSource[i] = source[i];
+            }
+
             EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, status);
+            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, statusSource);
         }
 
         static void clear() {
@@ -92,6 +107,10 @@ namespace {
 
             for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
                 tmp.pins[i] = pins[i];
+            }
+
+            for (int i = 0; i < SOURCE_LENGTH; ++i) {
+                tmp.statusSource[i] = statusSource[i];
             }
             EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, tmp);
         }
@@ -118,7 +137,7 @@ namespace {
             activatingTime = config.activatingTime;
             suspiciousTime = config.suspiciousTime;
 
-            setStatus(config.status);
+            setStatus(config.status, config.statusSource);
         }
 
     };
@@ -127,6 +146,7 @@ namespace {
     bool AlarmConfig::enabled = false;
     String AlarmConfig::statusName = "UNKNOWN";
     AlarmStatus AlarmConfig::status = AS_UNKNOWN;
+    char AlarmConfig::statusSource[SOURCE_LENGTH];
     DPinMode AlarmConfig::outputMode = PM_HIGH;
     AlarmPin  AlarmConfig::pins[MASTER_PIN_NUMBER];
     int AlarmConfig::activatingTime = DEFAULT_ACTIVATING_TIME;

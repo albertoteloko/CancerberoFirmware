@@ -6,8 +6,8 @@
 #include "../common.h"
 #include "config.h"
 
-#define NO_SOURCE             "Alarm"
-#define KEY             "Key"
+#define NO_SOURCE               "Unknown"
+#define KEY                     "Key"
 
 namespace {
 
@@ -51,11 +51,11 @@ namespace {
 
                 if ((AlarmConfig::getStatus() == AS_ACTIVATING) &&
                     (millis() >= statusTime + AlarmConfig::activatingTime)) {
-                    setStatus(AS_ACTIVATED);
+                    setStatus(AS_ACTIVATED, AlarmConfig::getStatusSource());
                 }
                 if ((AlarmConfig::getStatus() == AS_SUSPICIOUS) &&
                     (millis() >= statusTime + AlarmConfig::suspiciousTime)) {
-                    setStatus(AS_ALARMED);
+                    setStatus(AS_ALARMED, AlarmConfig::getStatusSource());
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace {
                 log.debug("Unchanged status: " + fromAlarmStatus(newStatus));
                 return AS_UNCHANGED;
             } else {
-                AlarmConfig::setStatus(newStatus);
+                AlarmConfig::setStatus(newStatus, source.c_str());
                 log.info("Changed status to: " + AlarmConfig::statusName + ", source: " + source);
 
                 statusTime = millis();
