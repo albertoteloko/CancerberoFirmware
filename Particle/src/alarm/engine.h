@@ -8,6 +8,7 @@
 
 #define NO_SOURCE               "Unknown"
 #define KEY                     "Key"
+#define PIN_INFORM_INTERVAL     60 * 1000
 
 namespace {
 
@@ -79,7 +80,8 @@ namespace {
 
     private:
         static RemoteLog log;
-        static int pinValues[MASTER_PIN_NUMBER];
+        static bool activations[MASTER_PIN_NUMBER];
+        static long pinTimes[MASTER_PIN_NUMBER];
         static unsigned long statusTime;
 
         static void enableOutput(int pin) {
@@ -128,29 +130,54 @@ namespace {
         }
 
         static void readSensor(int pinIndex, AlarmPin pin) {
-            int lastValue = pinValues[pinIndex];
-            int currentValue = digitalRead(pin.id);
+            bool informValue = false;
+            String pinName = fromPinIds(pin.id);
+            long time = millis();
+            bool lastActivation = activations[pinIndex];
+            int currentValue;
 
-            if (currentValue != lastValue) {
-                pinChanged(pin, currentValue);
-                pinValues[pinIndex] = currentValue;
+            if(pin.input  == PIN_ANALOG) {
+                currentValue = analogRead(pin.id);
+            } else {
+                currentValue = digitalRead(pin.id);
+            }
+
+            bool currentActivation = isPinActivated(pin, currentValue);
+
+            if((pinTimes[pinIndex] == 0) || ((pinTimes[pinIndex] + PIN_INFORM_INTERVAL) < time)){
+                log.info("Informing pin " + pinName + " has value of " + currentValue);
+                informValue = true;
+                pinTimes[pinIndex] = time;
+            }
+
+            if (currentActivation != lastActivation) {
+                log.info("Pin activation changed " + pinName + " to " + (currentActivation ? "enabled" : "disabled") + " value: " + currentValue);
+                informValue = true;
+                pinActivatedChange(pin, currentActivation);
+                activations[pinIndex] = currentActivation;
+            }
+
+            if (informValue){
+                EventDispatcher::publishPinValue(pinName, currentValue);
             }
         }
 
-        static void pinChanged(AlarmPin pin, int value) {
-            String pinName = fromPinIds(pin.id);
-            AlarmStatus currentStatus = AlarmConfig::getStatus();
-            log.info("Changed " + pinName + " to " + (value ? "true" : "false") + " - Mode: " + fromPinMode(pin.mode));
-
-            if (RemoteLog::getLevel() < LL_INFO) {
-                EventDispatcher::publishPinChange(pinName, value);
+        static bool isPinActivated(AlarmPin pin, int value){
+            if(pin.input == PIN_DIGITAL){
+                return (value == pin.mode);
+            }else{
+                if(pin.mode == PM_HIGH){
+                    return (value >= pin.threshold);
+                }else{
+                    return (value <= pin.threshold);
+                }
             }
+        }
 
-            if (pin.mode == value) {
-                log.info("Activated " + pinName + " - " + fromPinType(pin.type));
+        static void pinActivatedChange(AlarmPin pin, bool currentActivation) {
+            AlarmStatus currentStatus = AlarmConfig::getStatus();
 
-                EventDispatcher::publishPinActivated(pinName, value);
-
+            if(currentActivation){
                 if (pin.type == PT_SABOTAGE_IN) {
                     log.warn("The node is under sabotage!");
                     setStatus(AS_SABOTAGE, "P:" + fromPinIds(pin.id));
@@ -181,7 +208,8 @@ namespace {
     };
 
     RemoteLog Alarm::log = RemoteLog("alarm-engine");
-    int Alarm::pinValues[MASTER_PIN_NUMBER];
+    bool Alarm::activations[MASTER_PIN_NUMBER];
+    long Alarm::pinTimes[MASTER_PIN_NUMBER];
     unsigned long Alarm::statusTime = millis();
 }
 #endif

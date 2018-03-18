@@ -43,45 +43,15 @@ namespace {
             publish(name, jsonStr);
         }
 
-        static void publishPinChange(String pinName, int currentValue) {
+        static void publishPinValue(String pinName, int currentValue) {
             StaticJsonBuffer<256> jsonBuffer;
-            String name = "alarm-pin-changed";
+            String name = "alarm-pin-value";
 
             JsonObject &root = jsonBuffer.createObject();
             root["type"] = name;
             root["nodeId"] = nodeId;
             root["pinId"] = pinName;
             root["value"] = currentValue;
-            root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
-
-            String jsonStr;
-            root.printTo(jsonStr);
-            publish(name, jsonStr);
-        }
-
-        static void publishPinActivated(String pinName, int currentValue) {
-            StaticJsonBuffer<256> jsonBuffer;
-            String name = "alarm-pin-activated";
-
-            JsonObject &root = jsonBuffer.createObject();
-            root["type"] = name;
-            root["nodeId"] = nodeId;
-            root["pinId"] = pinName;
-            root["value"] = currentValue;
-            root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
-
-            String jsonStr;
-            root.printTo(jsonStr);
-            publish(name, jsonStr);
-        }
-
-       static void publishPing() {
-            StaticJsonBuffer<256> jsonBuffer;
-            String name = "ping";
-
-            JsonObject &root = jsonBuffer.createObject();
-            root["type"] = name;
-            root["nodeId"] = nodeId;
             root["timestamp"] = Time.format(TIME_FORMAT_ISO8601_FULL);
 
             String jsonStr;
