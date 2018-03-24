@@ -25,7 +25,7 @@ void setup() {
   Serial.println("Domo4Pi Slave v1.0");   
 
   pinMode(ALARM_PIN, OUTPUT);
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(LED_RED_PIN, OUTPUT);
   pinMode(SPEAKER_PIN, OUTPUT);
 
   for (int i=2; i < 6; i++){
@@ -134,10 +134,10 @@ void loopSuspiciusState() {
   delay(1);
   if(cicleTime == 0){
     tone(SPEAKER_PIN, 1500);
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(LED_RED_PIN, HIGH);
   } else if(cicleTime==300){
     noTone(SPEAKER_PIN);
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(LED_RED_PIN, LOW);
   }
 }
 
@@ -145,10 +145,10 @@ void loopActivatingState() {
   int cicleTime  = statusTime % 2000;
   if(cicleTime == 0){
     tone(SPEAKER_PIN, 400);
-    digitalWrite(LED_PIN, HIGH);
+    digitalWrite(LED_RED_PIN, HIGH);
   } else if(cicleTime==200){
     noTone(SPEAKER_PIN);
-    digitalWrite(LED_PIN, LOW);
+    digitalWrite(LED_RED_PIN, LOW);
   }
 }
 
@@ -179,7 +179,7 @@ void setStatus(byte state){
     Serial.print("Changing alarm state: ");
     Serial.println(getStateString()); 
 
-    digitalWrite(LED_PIN, (state == IDDLE_STATE) ? LOW : HIGH);
+    digitalWrite(LED_RED_PIN, (state == IDDLE_STATE) ? LOW : HIGH);
     digitalWrite(ALARM_PIN, ((state == ALARMED_STATE) || (state == SAFETY_STATE)) ? HIGH : LOW);
 
     if(state == IDDLE_STATE){

@@ -7,7 +7,8 @@
 
 #define SPEAKER_PIN         D0
 #define ALARM_PIN    D1
-#define LED_PIN             D7
+#define LED_GREEN_PIN           D1
+#define LED_RED_PIN             D7
 
 enum SPIPort {
     SPI_0,

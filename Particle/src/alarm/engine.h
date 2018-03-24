@@ -37,7 +37,10 @@ namespace {
         static void setup() {
             if (AlarmConfig::enabled) {
                 pinMode(ALARM_PIN, OUTPUT);
+
+                #ifdef SABOTAGE_OUT_PIN
                 pinMode(SABOTAGE_OUT_PIN, OUTPUT);
+                #endif
 
                 AlarmConfig::forEachDefinedPin(setPinInput);
                 setStatus(AlarmConfig::getStatus(), true, NO_SOURCE);
@@ -113,21 +116,23 @@ namespace {
                     disableOutput(ALARM_PIN);
                 }
 
-                AlarmConfig::forEachDefinedPin(setSabotageOutput);
+                #ifdef SABOTAGE_OUT_PIN
+                setSabotageOutput();
+                #endif
 
                 return newStatus;
             }
         }
 
+        #ifdef SABOTAGE_OUT_PIN
         static void setSabotageOutput(int pinIndex, AlarmPin pin) {
-            if (pin.type == PT_SABOTAGE_OUT) {
-                if (AlarmConfig::getStatus() == AS_SABOTAGE) {
-                    enableOutput(SABOTAGE_OUT_PIN);
-                } else {
-                    disableOutput(SABOTAGE_OUT_PIN);
-                }
+            if (AlarmConfig::getStatus() == AS_SABOTAGE) {
+                enableOutput(SABOTAGE_OUT_PIN);
+            } else {
+                disableOutput(SABOTAGE_OUT_PIN);
             }
         }
+        #endif
 
         static void readSensor(int pinIndex, AlarmPin pin) {
             bool informValue = false;
@@ -178,7 +183,7 @@ namespace {
             AlarmStatus currentStatus = AlarmConfig::getStatus();
 
             if(currentActivation){
-                if (pin.type == PT_SABOTAGE_IN) {
+                if (pin.type == PT_SABOTAGE) {
                     log.warn("The node is under sabotage!");
                     setStatus(AS_SABOTAGE, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_SAFETY) {
@@ -196,14 +201,8 @@ namespace {
         }
 
         static void setPinInput(int index, AlarmPin pin) {
-            log.debug("Pin " + fromPinIds(pin.id) + " is type " + fromPinType(pin.type) + " and mode " +
-                      fromPinMode(pin.mode));
-
-            if (pin.type == PT_SABOTAGE_OUT) {
-                pinMode(pin.id, OUTPUT);
-            } else {
-                pinMode(pin.id, INPUT);
-            };
+            log.debug("Pin " + fromPinIds(pin.id) + " is type " + fromPinType(pin.type) + " and mode " + fromPinMode(pin.mode));
+            pinMode(pin.id, INPUT);
         }
     };
 

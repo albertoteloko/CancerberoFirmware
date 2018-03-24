@@ -25,7 +25,8 @@ namespace {
 
     public:
         static void start() {
-            pinMode(LED_PIN, OUTPUT);
+            pinMode(LED_GREEN_PIN, OUTPUT);
+            pinMode(LED_RED_PIN, OUTPUT);
             pinMode(SPEAKER_PIN, OUTPUT);
 
             CommandHandler::start();
@@ -56,22 +57,22 @@ namespace {
         }
 
         static void beepGranted() {
-            digitalWrite(LED_PIN, HIGH);
+            digitalWrite(LED_RED_PIN, HIGH);
             noTone(SPEAKER_PIN);
             tone(SPEAKER_PIN, 1200, 600);
             delay(600);
             tone(SPEAKER_PIN, 2000, 600);
             delay(600);
-            digitalWrite(LED_PIN, LOW);
+            digitalWrite(LED_RED_PIN, LOW);
             noTone(SPEAKER_PIN);
         }
 
         static void beepNotGranted() {
-            digitalWrite(LED_PIN, HIGH);
+            digitalWrite(LED_GREEN_PIN, HIGH);
             noTone(SPEAKER_PIN);
             tone(SPEAKER_PIN, 600, 500);
             delay(500);
-            digitalWrite(LED_PIN, LOW);
+            digitalWrite(LED_GREEN_PIN, LOW);
             noTone(SPEAKER_PIN);
         }
 
@@ -121,7 +122,7 @@ namespace {
                 beepChange = millis();
                 ledChange = millis();
                 noTone(SPEAKER_PIN);
-                digitalWrite(LED_PIN, LOW);
+                digitalWrite(LED_RED_PIN, LOW);
 
                 if (newStatus == NS_ALARMED) {
                     tone(SPEAKER_PIN, 3000);
@@ -135,7 +136,7 @@ namespace {
 
         static void ledsLoop() {
             if (status == NS_IDLE) {
-                digitalWrite(LED_PIN, LOW);
+                digitalWrite(LED_RED_PIN, LOW);
             } else if (status == NS_ACTIVATING) {
                 loopLedBlink(
                         AlarmConfig::activatingTime,
@@ -145,7 +146,7 @@ namespace {
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MAX
                 );
             } else if (status == NS_ACTIVATED) {
-                digitalWrite(LED_PIN, HIGH);
+                digitalWrite(LED_RED_PIN, HIGH);
             } else if (status == NS_SUSPICIOUS) {
                 loopLedBlink(
                         AlarmConfig::suspiciousTime,
@@ -155,7 +156,7 @@ namespace {
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MAX
                 );
             } else {
-                digitalWrite(LED_PIN, HIGH);
+                digitalWrite(LED_RED_PIN, HIGH);
             }
         }
 
@@ -239,11 +240,11 @@ namespace {
         loopLedBlink(long statusDuration, long frequency, long blinkDuration, long minCycleTime, long maxCycleTime) {
             if (ledChange <= millis()) {
                 if (!ledOn) {
-                    digitalWrite(LED_PIN, HIGH);
+                    digitalWrite(LED_RED_PIN, HIGH);
                     ledOn = true;
                     ledChange = millis() + blinkDuration;
                 } else {
-                    digitalWrite(LED_PIN, LOW);
+                    digitalWrite(LED_RED_PIN, LOW);
                     ledOn = false;
                     long cycleTime = getCycleTime(statusDuration, minCycleTime, maxCycleTime);
                     long silenceTime = (cycleTime - blinkDuration);

@@ -46,9 +46,8 @@ enum PinType {
     PT_UNKNOWN = -0x01,
     PT_SENSOR = 0x01,
     PT_KEY = 0x02,
-    PT_SABOTAGE_IN = 0x03,
-    PT_SABOTAGE_OUT = 0x04,
-    PT_SAFETY = 0x05
+    PT_SABOTAGE = 0x03,
+    PT_SAFETY = 0x04
 };
 
 enum DPinMode {
@@ -173,10 +172,8 @@ namespace {
             return PT_SENSOR;
         } else if (compareIgnoringCase(input, "KEY") || compareIgnoringCase(input, "K")) {
             return PT_KEY;
-        } else if (compareIgnoringCase(input, "SABOTAGE_IN") || compareIgnoringCase(input, "SABI")) {
-            return PT_SABOTAGE_IN;
-        } else if (compareIgnoringCase(input, "SABOTAGE_OUT") || compareIgnoringCase(input, "SABO")) {
-            return PT_SABOTAGE_OUT;
+        } else if (compareIgnoringCase(input, "SABOTAGE") || compareIgnoringCase(input, "SAB")) {
+            return PT_SABOTAGE;
         } else if (compareIgnoringCase(input, "SAFETY") || compareIgnoringCase(input, "SAF")) {
             return PT_SAFETY;
         } else {
@@ -191,10 +188,8 @@ namespace {
                 return "SENSOR";
             case PT_KEY:
                 return "KEY";
-            case PT_SABOTAGE_IN:
-                return "SABOTAGE_IN";
-            case PT_SABOTAGE_OUT:
-                return "SABOTAGE_OUT";
+            case PT_SABOTAGE:
+                return "SABOTAGE";
             case PT_SAFETY:
                 return "SAFETY";
             default:

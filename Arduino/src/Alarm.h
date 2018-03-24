@@ -15,7 +15,7 @@
 
 
 
-#define LED_PIN 6
+#define LED_RED_PIN 6
 #define SPEAKER_PIN 7
 #define ADDRESS_SELECT_PIN 8
 #define ALARM_PIN 9
