@@ -5,7 +5,6 @@
 #include "../utils.h"
 
 #define CARD_CONFIG_EEPROM_ADDRESS SERVER_DEFINITION_EEPROM_ADDRESS +  sizeof(EthernetGatewayConfigStruct) + 10
-#define CARD_NUMBER 20
 #define CARD_ID_BYTES 10
 
 #define NOT_FOUND -5

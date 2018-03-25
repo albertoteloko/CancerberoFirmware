@@ -3,10 +3,11 @@
 
 #include "common.h"
 
-#define MASTER_PIN_NUMBER 10
+#define MASTER_PIN_NUMBER       10
+#define CARD_NUMBER             20
 
-#define SPEAKER_PIN         D0
-#define ALARM_PIN           D6
+#define SPEAKER_PIN             D0
+#define ALARM_PIN               D6
 #define LED_GREEN_PIN           D1
 #define LED_RED_PIN             D7
 

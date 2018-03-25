@@ -3,13 +3,16 @@
 
 #include "common.h"
 
-#define MASTER_PIN_NUMBER 24
+#define MASTER_PIN_NUMBER       12
+#define CARD_NUMBER             20
 
-#define SPEAKER_PIN         D0
-#define ALARM_PIN    D1
-#define LED_GREEN_PIN           D1
-#define LED_RED_PIN             D7
+#define SABOTAGE_OUT_PIN        D6
+#define ALARM_PIN               D7
 
+#define SPEAKER_PIN             D1
+#define LED_RED_PIN             D0
+#define LED_YELLOW_PIN          C5
+#define LED_GREEN_PIN           C4
 enum SPIPort {
     SPI_0,
     SPI_1,

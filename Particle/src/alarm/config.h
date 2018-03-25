@@ -5,6 +5,7 @@
 
 #define ALARM_DEFINITION_EEPROM_ADDRESS 0
 
+#define DEFAULT_STATUS_SOURCE               "Setup"
 #define DEFAULT_ACTIVATING_TIME             60000
 #define DEFAULT_SUSPICIOUS_TIME             30000
 #define SOURCE_LENGTH                       50
@@ -21,8 +22,8 @@ namespace {
 
     struct AlarmConfigStruct {
         bool enabled = false;
-        AlarmStatus status = AS_UNKNOWN;
-        char statusSource[SOURCE_LENGTH];
+        AlarmStatus status = AS_IDLE;
+        char statusSource[SOURCE_LENGTH] = DEFAULT_STATUS_SOURCE;
         DPinMode outputMode = PM_HIGH;
         int activatingTime = DEFAULT_ACTIVATING_TIME;
         int suspiciousTime = DEFAULT_SUSPICIOUS_TIME;
@@ -33,24 +34,18 @@ namespace {
     class AlarmConfig {
     private:
         static RemoteLog log;
-        static AlarmStatus status;
-        static char statusSource[SOURCE_LENGTH];
-        static AlarmPin pins[MASTER_PIN_NUMBER];
+        static AlarmConfigStruct config;
     public:
-        static bool enabled;
         static String statusName;
-        static DPinMode outputMode;
-        static int activatingTime;
-        static int suspiciousTime;
 
 
         static void set(long newActivatingTime, long newSuspiciousTime, AlarmPin newPins[MASTER_PIN_NUMBER]) {
-            enabled = true;
-            activatingTime = newActivatingTime;
-            suspiciousTime = newSuspiciousTime;
+            config.enabled = true;
+            config.activatingTime = newActivatingTime;
+            config.suspiciousTime = newSuspiciousTime;
 
             for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-                pins[i] = newPins[i];
+                config.pins[i] = newPins[i];
             }
 
             save();
@@ -58,84 +53,73 @@ namespace {
 
         static void forEachPin(void (*f)(int, AlarmPin)) {
             for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-                (*f)(i, pins[i]);
+                (*f)(i, config.pins[i]);
             }
         }
 
         static void forEachDefinedPin(void (*f)(int, AlarmPin)) {
             for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-                if ((pins[i].id != PI_UNKNOWN) && (pins[i].type != PT_UNKNOWN) && (pins[i].mode != PM_UNKNOWN)) {
-                    (*f)(i, pins[i]);
+                if ((config.pins[i].id != PI_UNKNOWN) && (config.pins[i].type != PT_UNKNOWN) && (config.pins[i].mode != PM_UNKNOWN)) {
+                    (*f)(i, config.pins[i]);
                 }
             }
         }
 
+        static bool enabled() {
+            return config.enabled;
+        }
+
+        static DPinMode outputMode() {
+            return config.outputMode;
+        }
+
+        static int activatingTime() {
+            return config.activatingTime;
+        }
+
+        static int suspiciousTime() {
+            return config.suspiciousTime;
+        }
+
         static AlarmStatus getStatus() {
-            return status;
+            return config.status;
         }
 
 
         static String getStatusSource() {
-            return String(statusSource);
+            return String(config.statusSource);
         }
 
 
         static void setStatus(AlarmStatus newStatus, const char source[SOURCE_LENGTH]) {
-            status = newStatus;
+            config.status = newStatus;
             statusName = fromAlarmStatus(newStatus);
 
             for (int i = 0; i < SOURCE_LENGTH; ++i) {
-                statusSource[i] = source[i];
+                config.statusSource[i] = source[i];
             }
 
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, status);
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, statusSource);
+            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, config.status);
+            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, config.statusSource);
         }
 
         static void clear() {
-            AlarmConfigStruct tmp = AlarmConfigStruct();
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, tmp);
-            loadFromConfig(tmp);
+            config = AlarmConfigStruct();
+            save();
+            load();
         }
 
         static void save() {
-            AlarmConfigStruct tmp = AlarmConfigStruct();
-            tmp.enabled = enabled;
-            tmp.status = status;
-            tmp.activatingTime = activatingTime;
-            tmp.suspiciousTime = suspiciousTime;
-
-            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-                tmp.pins[i] = pins[i];
-            }
-
-            for (int i = 0; i < SOURCE_LENGTH; ++i) {
-                tmp.statusSource[i] = statusSource[i];
-            }
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, tmp);
+            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, config);
         }
 
         static void load() {
-            AlarmConfigStruct tmp = AlarmConfigStruct();
-            EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, tmp);
-            loadFromConfig(tmp);
-        }
-
-
-    private:
-        static void loadFromConfig(AlarmConfigStruct config) {
-            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-                pins[i] = config.pins[i];
-            }
+            EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, config);
 
             if (config.status == AS_UNKNOWN) {
                 log.error("No status, setting idle one");
                 config.status = AS_IDLE;
             }
-            enabled = config.enabled;
-            outputMode = config.outputMode;
-            activatingTime = config.activatingTime;
-            suspiciousTime = config.suspiciousTime;
 
             setStatus(config.status, config.statusSource);
         }
@@ -143,13 +127,7 @@ namespace {
     };
 
     RemoteLog AlarmConfig::log = RemoteLog("alarm-definition");
-    bool AlarmConfig::enabled = false;
     String AlarmConfig::statusName = "UNKNOWN";
-    AlarmStatus AlarmConfig::status = AS_UNKNOWN;
-    char AlarmConfig::statusSource[SOURCE_LENGTH];
-    DPinMode AlarmConfig::outputMode = PM_HIGH;
-    AlarmPin  AlarmConfig::pins[MASTER_PIN_NUMBER];
-    int AlarmConfig::activatingTime = DEFAULT_ACTIVATING_TIME;
-    int AlarmConfig::suspiciousTime = DEFAULT_SUSPICIOUS_TIME;
+    AlarmConfigStruct AlarmConfig::config = AlarmConfigStruct();
 }
 #endif

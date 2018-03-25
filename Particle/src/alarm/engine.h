@@ -35,7 +35,7 @@ namespace {
         }
 
         static void setup() {
-            if (AlarmConfig::enabled) {
+            if (AlarmConfig::enabled()) {
                 pinMode(ALARM_PIN, OUTPUT);
 
                 #ifdef SABOTAGE_OUT_PIN
@@ -50,15 +50,15 @@ namespace {
         }
 
         static void loop() {
-            if (AlarmConfig::enabled) {
+            if (AlarmConfig::enabled()) {
                 AlarmConfig::forEachDefinedPin(readSensor);
 
                 if ((AlarmConfig::getStatus() == AS_ACTIVATING) &&
-                    (millis() >= statusTime + AlarmConfig::activatingTime)) {
+                    (millis() >= statusTime + AlarmConfig::activatingTime())) {
                     setStatus(AS_ACTIVATED, AlarmConfig::getStatusSource());
                 }
                 if ((AlarmConfig::getStatus() == AS_SUSPICIOUS) &&
-                    (millis() >= statusTime + AlarmConfig::suspiciousTime)) {
+                    (millis() >= statusTime + AlarmConfig::suspiciousTime())) {
                     setStatus(AS_ALARMED, AlarmConfig::getStatusSource());
                 }
             }
@@ -88,11 +88,11 @@ namespace {
         static unsigned long statusTime;
 
         static void enableOutput(int pin) {
-            digitalWrite(pin, (AlarmConfig::outputMode == PM_HIGH) ? HIGH : LOW);
+            digitalWrite(pin, (AlarmConfig::outputMode() == PM_HIGH) ? HIGH : LOW);
         }
 
         static void disableOutput(int pin) {
-            digitalWrite(pin, (AlarmConfig::outputMode == PM_HIGH) ? LOW : HIGH);
+            digitalWrite(pin, (AlarmConfig::outputMode() == PM_HIGH) ? LOW : HIGH);
         }
 
         static int setStatus(AlarmStatus newStatus, bool forceChange, String source) {
@@ -125,7 +125,7 @@ namespace {
         }
 
         #ifdef SABOTAGE_OUT_PIN
-        static void setSabotageOutput(int pinIndex, AlarmPin pin) {
+        static void setSabotageOutput( ) {
             if (AlarmConfig::getStatus() == AS_SABOTAGE) {
                 enableOutput(SABOTAGE_OUT_PIN);
             } else {

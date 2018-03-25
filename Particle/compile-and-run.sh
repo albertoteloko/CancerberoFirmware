@@ -1,19 +1,12 @@
 #!/bin/bash
 
-ACTION=$1
-NODE=$2
-ARCH=$3
+NODE=$1
+ARCH=$2
+ACTION=$3
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CURRENT_DIR=${pwd}
 
-if [ "$NODE" == "" ]; then
-    NODE="Shop_Alarm"
-fi
-
-if [ "$ARCH" == "" ]; then
-    ARCH="photon"
-fi
 
 echo "Node: $NODE"
 echo "Arch: $ARCH"
@@ -24,8 +17,9 @@ if [ "$ACTION" == "compile" ]; then
     echo "Compiling..." && particle compile $ARCH
 else
     echo "Flashing..." && particle flash $NODE
+    rm *.bin
 fi
-rm *.bin
+
 cd "$CURRENT_DIR"
 echo "Done!"
 

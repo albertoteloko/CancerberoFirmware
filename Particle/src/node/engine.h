@@ -139,7 +139,7 @@ namespace {
                 digitalWrite(LED_RED_PIN, LOW);
             } else if (status == NS_ACTIVATING) {
                 loopLedBlink(
-                        AlarmConfig::activatingTime,
+                        AlarmConfig::activatingTime(),
                         DEFAULT_ACTIVATING_BEEP_FREQUENCY,
                         DEFAULT_ACTIVATING_BEEP_DURATION,
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MIN,
@@ -149,7 +149,7 @@ namespace {
                 digitalWrite(LED_RED_PIN, HIGH);
             } else if (status == NS_SUSPICIOUS) {
                 loopLedBlink(
-                        AlarmConfig::suspiciousTime,
+                        AlarmConfig::suspiciousTime(),
                         DEFAULT_SUSPICIOUS_BEEP_FREQUENCY,
                         DEFAULT_SUSPICIOUS_BEEP_DURATION,
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN,
@@ -165,7 +165,7 @@ namespace {
                 loopSpeakerIdle();
             } else if (status == NS_ACTIVATING) {
                 loopSpeakerBeep(
-                        AlarmConfig::activatingTime,
+                        AlarmConfig::activatingTime(),
                         DEFAULT_ACTIVATING_BEEP_FREQUENCY,
                         DEFAULT_ACTIVATING_BEEP_DURATION,
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MIN,
@@ -175,7 +175,7 @@ namespace {
                 loopSpeakerActivated();
             } else if (status == NS_SUSPICIOUS) {
                 loopSpeakerBeep(
-                        AlarmConfig::suspiciousTime,
+                        AlarmConfig::suspiciousTime(),
                         DEFAULT_SUSPICIOUS_BEEP_FREQUENCY,
                         DEFAULT_SUSPICIOUS_BEEP_DURATION,
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN,
