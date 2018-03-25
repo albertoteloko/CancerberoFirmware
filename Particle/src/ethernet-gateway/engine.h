@@ -39,7 +39,7 @@ namespace {
         }
 
         static int sendCommand(IPAddress ip, String action, String message) {
-            if (EthernetGatewayConfig::enabled) {
+            if (EthernetGatewayConfig::enabled()) {
                 int result = -1;
                 long port = 6969;
                 log.info("Incoming remote action " + String(ip) + " -> " + String(action) + ": " + message);
@@ -82,21 +82,21 @@ namespace {
         }
 
         static void setup() {
-            if (EthernetGatewayConfig::enabled) {
-                if (EthernetGatewayConfig::spi != SPI_UNKNOWN) {
+            if (EthernetGatewayConfig::enabled()) {
+                if (EthernetGatewayConfig::spi() != SPI_UNKNOWN) {
                     server.end();
                     W5100.end();
 
                     log.info("Starting ethernet-gateway");
-                    log.info("SPI: " + fromSPIPort(EthernetGatewayConfig::spi));
-                    log.info("SS Pin: " + fromPinIds(EthernetGatewayConfig::ssPin));
-                    log.info("Mac: " + fromMac(EthernetGatewayConfig::mac));
-                    log.info("IP: " + String(EthernetGatewayConfig::ip));
-                    log.info("Port: " + String(EthernetGatewayConfig::port));
+                    log.info("SPI: " + fromSPIPort(EthernetGatewayConfig::spi()));
+                    log.info("SS Pin: " + fromPinIds(EthernetGatewayConfig::ssPin()));
+                    log.info("Mac: " + fromMac(EthernetGatewayConfig::mac()));
+                    log.info("IP: " + String(EthernetGatewayConfig::ip()));
+                    log.info("Port: " + String(EthernetGatewayConfig::port()));
 
-                    server.setPort(EthernetGatewayConfig::port);
-                    W5100.spi(getSPI(EthernetGatewayConfig::spi), EthernetGatewayConfig::ssPin);
-                    Ethernet.begin(EthernetGatewayConfig::mac, EthernetGatewayConfig::ip);
+                    server.setPort(EthernetGatewayConfig::port());
+                    W5100.spi(getSPI(EthernetGatewayConfig::spi()), EthernetGatewayConfig::ssPin());
+                    Ethernet.begin(EthernetGatewayConfig::mac(), EthernetGatewayConfig::ip());
                     server.begin();
                 }
             } else {
@@ -105,7 +105,7 @@ namespace {
         }
 
         static void loop() {
-            if (EthernetGatewayConfig::enabled) {
+            if (EthernetGatewayConfig::enabled()) {
                 EthernetClient client = server.available();
                 if (client) {
                     IPAddress remoteIp = client.remoteIP();

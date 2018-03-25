@@ -14,7 +14,6 @@ static const int DEFAULT_PORT = 6969;
 
 namespace {
 
-
     struct EthernetGatewayConfigStruct {
         boolean enabled = false;
         SPIPort spi = SPI_UNKNOWN;
@@ -25,79 +24,62 @@ namespace {
     };
 
     class EthernetGatewayConfig {
+    private:
+    static EthernetGatewayConfigStruct config;
     public:
-        static RemoteLog log;
-        static bool enabled;
-        static SPIPort spi;
-        static PinIds ssPin;
-        static byte mac[6];
-        static IPAddress ip;
-        static int port;
+        static bool enabled(){
+            return config.enabled;
+        }
+
+        static SPIPort spi(){
+            return config.spi;
+        }
+
+        static PinIds ssPin(){
+            return config.ssPin;
+        }
+        static byte* mac(){
+            return config.mac;
+        }
+
+        static IPAddress ip(){
+            return config.ip;
+        }
+
+        static int port(){
+            return config.spi;
+        }
 
         static void set(SPIPort newSpi, PinIds newSSPin, byte newMac[6], IPAddress newIP, int newPort) {
-            enabled = true;
-            spi = newSpi;
-            ssPin = newSSPin;
+            config.enabled = true;
+            config.spi = newSpi;
+            config.ssPin = newSSPin;
 
             for (int i = 0; i < 6; ++i) {
-                mac[i] = newMac[i];
+                config.mac[i] = newMac[i];
             }
 
-            ip = newIP;
-            port = newPort;
+            config.ip = newIP;
+            config.port = newPort;
 
             save();
         }
 
         static void clear() {
-            EthernetGatewayConfigStruct tmp = EthernetGatewayConfigStruct();
-            EEPROM.put(SERVER_DEFINITION_EEPROM_ADDRESS, tmp);
-            loadFromConfig(tmp);
+            config = EthernetGatewayConfigStruct();
+            save();
+            load();
         }
 
         static void save() {
-            EthernetGatewayConfigStruct tmp = EthernetGatewayConfigStruct();
-
-            for (int i = 0; i < 6; ++i) {
-                tmp.mac[i] = mac[i];
-            }
-
-            tmp.enabled = enabled;
-            tmp.spi = spi;
-            tmp.ssPin = ssPin;
-            tmp.ip = ip;
-            tmp.port = port;
-
-            EEPROM.put(SERVER_DEFINITION_EEPROM_ADDRESS, tmp);
+            EEPROM.put(SERVER_DEFINITION_EEPROM_ADDRESS, config);
         }
 
         static void load() {
-            EthernetGatewayConfigStruct tmp = EthernetGatewayConfigStruct();
-            EEPROM.get(SERVER_DEFINITION_EEPROM_ADDRESS, tmp);
-            loadFromConfig(tmp);
+            EEPROM.get(SERVER_DEFINITION_EEPROM_ADDRESS, config);
         }
-
-    private:
-        static void loadFromConfig(EthernetGatewayConfigStruct config) {
-            for (int i = 0; i < 6; ++i) {
-                mac[i] = config.mac[i];
-            }
-
-            enabled = config.enabled;
-            spi = config.spi;
-            ssPin = config.ssPin;
-            ip = config.ip;
-            port = config.port;
-
-        }
-
     };
 
-    bool EthernetGatewayConfig::enabled = false;
-    SPIPort EthernetGatewayConfig::spi = SPI_UNKNOWN;
-    PinIds EthernetGatewayConfig::ssPin = PI_UNKNOWN;
-    byte EthernetGatewayConfig::mac[6] = DEFAULT_MAC;
-    IPAddress EthernetGatewayConfig::ip = DEFAULT_IP;
-    int EthernetGatewayConfig::port = DEFAULT_PORT;
+    EthernetGatewayConfigStruct EthernetGatewayConfig::config = EthernetGatewayConfigStruct();
 }
 #endif
