@@ -64,7 +64,7 @@ namespace {
             tone(SPEAKER_PIN, 2000, 600);
             delay(600);
             digitalWrite(LED_RED_PIN, LOW);
-            noTone(SPEAKER_PIN);
+            setSpeakerTone();
         }
 
         static void beepNotGranted() {
@@ -73,7 +73,7 @@ namespace {
             tone(SPEAKER_PIN, 600, 500);
             delay(500);
             digitalWrite(LED_GREEN_PIN, LOW);
-            noTone(SPEAKER_PIN);
+            setSpeakerTone();
         }
 
     private:
@@ -121,16 +121,22 @@ namespace {
                 statusTime = millis();
                 beepChange = millis();
                 ledChange = millis();
-                noTone(SPEAKER_PIN);
+
                 digitalWrite(LED_RED_PIN, LOW);
 
-                if (newStatus == NS_ALARMED) {
-                    tone(SPEAKER_PIN, 3000);
-                } else if (newStatus == NS_SAFETY) {
-                    tone(SPEAKER_PIN, 2000);
-                } else if (newStatus == NS_SABOTAGE) {
-                    tone(SPEAKER_PIN, 4000);
-                }
+
+                setSpeakerTone();
+            }
+        }
+
+        static void setSpeakerTone() {
+            noTone(SPEAKER_PIN);
+            if (status == NS_ALARMED) {
+                tone(SPEAKER_PIN, 3000);
+            } else if (status == NS_SAFETY) {
+                tone(SPEAKER_PIN, 2000);
+            } else if (status == NS_SABOTAGE) {
+                tone(SPEAKER_PIN, 4000);
             }
         }
 

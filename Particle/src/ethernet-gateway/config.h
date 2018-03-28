@@ -47,7 +47,7 @@ namespace {
         }
 
         static int port(){
-            return config.spi;
+            return config.port;
         }
 
         static void set(SPIPort newSpi, PinIds newSSPin, byte newMac[6], IPAddress newIP, int newPort) {

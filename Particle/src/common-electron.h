@@ -3,6 +3,9 @@
 
 #include "common.h"
 
+
+
+#define PIN_INFORM_INTERVAL     5 * 60 * 1000
 #define MASTER_PIN_NUMBER       12
 #define CARD_NUMBER             20
 

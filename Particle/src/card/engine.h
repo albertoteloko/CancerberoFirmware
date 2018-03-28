@@ -46,15 +46,15 @@ namespace {
         }
 
         static void setup() {
-            if (CardConfig::enabled) {
-                if (CardConfig::spi != SPI_UNKNOWN) {
+            if (CardConfig::enabled()) {
+                if (CardConfig::spi() != SPI_UNKNOWN) {
                     mfrc522.PCD_End();
 
                     log.info("Starting card");
-                    log.info("SPI: " + fromSPIPort(CardConfig::spi));
-                    log.info("SS Pin: " + fromPinIds(CardConfig::ssPin));
+                    log.info("SPI: " + fromSPIPort(CardConfig::spi()));
+                    log.info("SS Pin: " + fromPinIds(CardConfig::ssPin()));
 
-                    mfrc522.PCD_Init(CardConfig::ssPin, UNUSED_PIN, getSPI(CardConfig::spi));
+                    mfrc522.PCD_Init(CardConfig::ssPin(), UNUSED_PIN, getSPI(CardConfig::spi()));
                     showReaderDetails();
                 }
             } else {
@@ -65,7 +65,7 @@ namespace {
         static BeepMode loop() {
             BeepMode result= BM_NODE;
 
-            if (CardConfig::enabled) {
+            if (CardConfig::enabled()) {
                 bool successRead = getID();  // sets successRead to 1 when we get read from reader otherwise 0
 
                 if (successRead) {

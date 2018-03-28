@@ -66,7 +66,6 @@ namespace {
 
     struct CardConfigStruct {
         bool enabled = false;
-        bool setupMode = false;
         SPIPort spi = SPI_UNKNOWN;
         PinIds ssPin = PI_UNKNOWN;
         byte cards[CARD_NUMBER][CARD_ID_BYTES];
@@ -74,18 +73,24 @@ namespace {
 
     class CardConfig {
     public:
-        static RemoteLog log;
-        static bool enabled;
-        static bool setupMode;
-        static SPIPort spi;
-        static PinIds ssPin;
-        static byte cards[CARD_NUMBER][CARD_ID_BYTES];
+        static CardConfigStruct config;
+
+        static bool enabled() {
+            return config.enabled;
+        }
+
+        static SPIPort spi() {
+            return config.spi;
+        }
+
+        static PinIds ssPin() {
+            return config.ssPin;
+        }
 
         static void set(SPIPort newSpi, PinIds newSSPin) {
-            enabled = true;
-            setupMode = false;
-            spi = newSpi;
-            ssPin = newSSPin;
+            config.enabled = true;
+            config.spi = newSpi;
+            config.ssPin = newSSPin;
 
             save();
         }
@@ -98,7 +103,7 @@ namespace {
                 result = NOT_SPACE_LEFT;
 
                 for (int i = 0; i < CARD_NUMBER; ++i) {
-                    byte* item= cards[i];
+                    byte* item= config.cards[i];
                     if (empty(item)) {
                         copy(cardId, item);
                         result = i;
@@ -115,7 +120,7 @@ namespace {
             int result = NOT_FOUND;
 
             for (int i = 0; i < CARD_NUMBER; ++i) {
-                byte* item = cards[i];
+                byte* item = config.cards[i];
                 if (equals(cardId, item)) {
                     copy(NO_ID, item);
                     result = i;
@@ -131,7 +136,7 @@ namespace {
             bool result = false;
 
             for (int i = 0; i < CARD_NUMBER; ++i) {
-                if (equals(cardId, cards[i])) {
+                if (equals(cardId, config.cards[i])) {
                     result = true;
                     break;
                 }
@@ -141,48 +146,20 @@ namespace {
         }
 
         static void clear() {
-            CardConfigStruct tmp = CardConfigStruct();
-            EEPROM.put(CARD_CONFIG_EEPROM_ADDRESS, tmp);
-            loadFromConfig(tmp);
+            config = CardConfigStruct();
+            save();
+            load();
         }
 
         static void save() {
-            CardConfigStruct tmp = CardConfigStruct();
-
-            tmp.enabled = enabled;
-            tmp.setupMode = setupMode;
-            tmp.spi = spi;
-            tmp.ssPin = ssPin;
-
-            for (int j = 0; j < CARD_NUMBER; ++j) {
-                for (int i = 0; i < CARD_ID_BYTES; ++i) {
-                    tmp.cards[j][i] = cards[j][i];
-                }
-            }
-
-            EEPROM.put(CARD_CONFIG_EEPROM_ADDRESS, tmp);
+            EEPROM.put(CARD_CONFIG_EEPROM_ADDRESS, config);
         }
 
         static void load() {
-            CardConfigStruct tmp = CardConfigStruct();
-            EEPROM.get(CARD_CONFIG_EEPROM_ADDRESS, tmp);
-            loadFromConfig(tmp);
+            EEPROM.get(CARD_CONFIG_EEPROM_ADDRESS, config);
         }
 
     private:
-        static void loadFromConfig(CardConfigStruct config) {
-            enabled = config.enabled;
-            setupMode = config.setupMode;
-            spi = config.spi;
-            ssPin = config.ssPin;
-
-            for (int j = 0; j < CARD_NUMBER; ++j) {
-                for (int i = 0; i < CARD_ID_BYTES; ++i) {
-                    cards[j][i] = config.cards[j][i];
-                }
-            }
-        }
-
         static bool empty(byte cardId1[CARD_ID_BYTES]) {
             return equals(cardId1, NO_ID);
         }
@@ -211,10 +188,6 @@ namespace {
         }
     };
 
-    bool CardConfig::enabled = false;
-    bool CardConfig::setupMode = false;
-    SPIPort CardConfig::spi = SPI_UNKNOWN;
-    PinIds CardConfig::ssPin = PI_UNKNOWN;
-    byte CardConfig::cards[CARD_NUMBER][CARD_ID_BYTES];
+    CardConfigStruct CardConfig::config = CardConfigStruct();
 }
 #endif

@@ -8,7 +8,6 @@
 
 #define NO_SOURCE               "Unknown"
 #define KEY                     "Key"
-#define PIN_INFORM_INTERVAL     60 * 1000
 
 namespace {
 
