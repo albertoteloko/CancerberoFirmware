@@ -14,7 +14,6 @@
 
 #define SPEAKER_PIN             D1
 #define LED_RED_PIN             D0
-#define LED_YELLOW_PIN          C5
 #define LED_GREEN_PIN           C4
 enum SPIPort {
     SPI_0,

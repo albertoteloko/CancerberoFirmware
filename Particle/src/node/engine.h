@@ -8,15 +8,18 @@
 #include "../ethernet-gateway/engine.h"
 #include "../card/engine.h"
 
-#define DEFAULT_ACTIVATING_BEEP_DURATION                 400
-#define DEFAULT_ACTIVATING_BEEP_FREQUENCY                 400
-#define DEFAULT_ACTIVATING_BEEP_PERIOD_MIN                 1200
-#define DEFAULT_ACTIVATING_BEEP_PERIOD_MAX                 5000
+#define DEFAULT_BLINK_DURATION                          1000
+#define DEFAULT_BLINK_PERIOD                            30000
 
-#define DEFAULT_SUSPICIOUS_BEEP_DURATION                 300
-#define DEFAULT_SUSPICIOUS_BEEP_FREQUENCY                 1500
-#define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN                 900
-#define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MAX                 3000
+#define DEFAULT_ACTIVATING_BEEP_DURATION                400
+#define DEFAULT_ACTIVATING_BEEP_FREQUENCY               400
+#define DEFAULT_ACTIVATING_BEEP_PERIOD_MIN              1200
+#define DEFAULT_ACTIVATING_BEEP_PERIOD_MAX              5000
+
+#define DEFAULT_SUSPICIOUS_BEEP_DURATION                300
+#define DEFAULT_SUSPICIOUS_BEEP_FREQUENCY               1500
+#define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN              900
+#define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MAX              3000
 
 namespace {
 
@@ -25,8 +28,11 @@ namespace {
 
     public:
         static void start() {
-            pinMode(LED_GREEN_PIN, OUTPUT);
             pinMode(LED_RED_PIN, OUTPUT);
+            pinMode(LED_GREEN_PIN, OUTPUT);
+            #ifdef LED_YELLOW_PIN
+                pinMode(LED_YELLOW_PIN, OUTPUT);
+            #endif
             pinMode(SPEAKER_PIN, OUTPUT);
 
             CommandHandler::start();
@@ -57,22 +63,26 @@ namespace {
         }
 
         static void beepGranted() {
-            digitalWrite(LED_RED_PIN, HIGH);
+            digitalWrite(LED_RED_PIN, LOW);
+            digitalWrite(LED_GREEN_PIN, LOW);
+            digitalWrite(LED_GREEN_PIN, HIGH);
             noTone(SPEAKER_PIN);
             tone(SPEAKER_PIN, 1200, 600);
             delay(600);
             tone(SPEAKER_PIN, 2000, 600);
             delay(600);
-            digitalWrite(LED_RED_PIN, LOW);
+            digitalWrite(LED_GREEN_PIN, LOW);
             setSpeakerTone();
         }
 
         static void beepNotGranted() {
-            digitalWrite(LED_GREEN_PIN, HIGH);
+            digitalWrite(LED_RED_PIN, LOW);
+            digitalWrite(LED_GREEN_PIN, LOW);
+            digitalWrite(LED_RED_PIN, HIGH);
             noTone(SPEAKER_PIN);
             tone(SPEAKER_PIN, 600, 500);
             delay(500);
-            digitalWrite(LED_GREEN_PIN, LOW);
+            digitalWrite(LED_RED_PIN, LOW);
             setSpeakerTone();
         }
 
@@ -123,6 +133,10 @@ namespace {
                 ledChange = millis();
 
                 digitalWrite(LED_RED_PIN, LOW);
+                digitalWrite(LED_GREEN_PIN, LOW);
+                #ifdef LED_YELLOW_PIN
+                    digitalWrite(LED_YELLOW_PIN, LOW);
+                #endif
 
 
                 setSpeakerTone();
@@ -142,21 +156,28 @@ namespace {
 
         static void ledsLoop() {
             if (status == NS_IDLE) {
-                digitalWrite(LED_RED_PIN, LOW);
+                loopStaticLedBlink(
+                        DEFAULT_BLINK_DURATION,
+                        DEFAULT_BLINK_PERIOD
+                );
             } else if (status == NS_ACTIVATING) {
                 loopLedBlink(
                         AlarmConfig::activatingTime(),
-                        DEFAULT_ACTIVATING_BEEP_FREQUENCY,
                         DEFAULT_ACTIVATING_BEEP_DURATION,
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MIN,
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MAX
                 );
             } else if (status == NS_ACTIVATED) {
+                #ifndef LED_YELLOW_PIN
                 digitalWrite(LED_RED_PIN, HIGH);
+                digitalWrite(LED_GREEN_PIN, HIGH);
+                #endif
+                #ifdef LED_YELLOW_PIN
+                digitalWrite(LED_YELLOW_PIN, HIGH);
+                #endif
             } else if (status == NS_SUSPICIOUS) {
                 loopLedBlink(
                         AlarmConfig::suspiciousTime(),
-                        DEFAULT_SUSPICIOUS_BEEP_FREQUENCY,
                         DEFAULT_SUSPICIOUS_BEEP_DURATION,
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN,
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MAX
@@ -192,17 +213,17 @@ namespace {
 
 
         static void loopSpeakerIdle() {
-            if (ledChange <= millis()) {
+            if (beepChange <= millis()) {
                 if (step == 0) {
-                    ledChange = millis() + 200;
+                    beepChange = millis() + 200;
                     tone(SPEAKER_PIN, 3200);
                     step += 1;
                 } else if (step == 1) {
-                    ledChange = millis() + 200;
+                    beepChange = millis() + 200;
                     tone(SPEAKER_PIN, 2400);
                     step += 1;
                 } else if (step == 2) {
-                    ledChange = millis() + 200;
+                    beepChange = millis() + 200;
                     tone(SPEAKER_PIN, 2000);
                     step += 1;
                 } else {
@@ -212,17 +233,17 @@ namespace {
         }
 
         static void loopSpeakerActivated() {
-            if (ledChange <= millis()) {
+            if (beepChange <= millis()) {
                 if (step == 0) {
-                    ledChange = millis() + 200;
+                    beepChange = millis() + 200;
                     tone(SPEAKER_PIN, 400);
                     step += 1;
                 } else if (step == 1) {
-                    ledChange = millis() + 200;
+                    beepChange = millis() + 200;
                     tone(SPEAKER_PIN, 1200);
                     step += 1;
                 } else if (step == 2) {
-                    ledChange = millis() + 200;
+                    beepChange = millis() + 200;
                     tone(SPEAKER_PIN, 2800);
                     step += 1;
                 } else {
@@ -243,16 +264,52 @@ namespace {
         }
 
         static void
-        loopLedBlink(long statusDuration, long frequency, long blinkDuration, long minCycleTime, long maxCycleTime) {
+        loopLedBlink(long statusDuration, long blinkDuration, long minCycleTime, long maxCycleTime) {
             if (ledChange <= millis()) {
                 if (!ledOn) {
-                    digitalWrite(LED_RED_PIN, HIGH);
+                    if (status == NS_ACTIVATING) {
+                        #ifndef LED_YELLOW_PIN
+                            digitalWrite(LED_RED_PIN, HIGH);
+                            digitalWrite(LED_GREEN_PIN, HIGH);
+                        #endif
+                        #ifdef LED_YELLOW_PIN
+                            digitalWrite(LED_YELLOW_PIN, HIGH);
+                        #endif
+                    }else{
+                        digitalWrite(LED_RED_PIN, HIGH);
+                    }
                     ledOn = true;
                     ledChange = millis() + blinkDuration;
                 } else {
-                    digitalWrite(LED_RED_PIN, LOW);
+                    if (status == NS_ACTIVATING) {
+                        #ifndef LED_YELLOW_PIN
+                            digitalWrite(LED_RED_PIN, LOW);
+                            digitalWrite(LED_GREEN_PIN, LOW);
+                        #endif
+                        #ifdef LED_YELLOW_PIN
+                            digitalWrite(LED_YELLOW_PIN, LOW);
+                        #endif
+                    }else{
+                        digitalWrite(LED_RED_PIN, LOW);
+                    }
                     ledOn = false;
                     long cycleTime = getCycleTime(statusDuration, minCycleTime, maxCycleTime);
+                    long silenceTime = (cycleTime - blinkDuration);
+                    ledChange = millis() + silenceTime;
+                }
+            }
+        }
+
+        static void
+        loopStaticLedBlink(long blinkDuration, long cycleTime) {
+            if (ledChange <= millis()) {
+                if (!ledOn) {
+                    digitalWrite(LED_GREEN_PIN, HIGH);
+                    ledOn = true;
+                    ledChange = millis() + blinkDuration;
+                } else {
+                    digitalWrite(LED_GREEN_PIN, LOW);
+                    ledOn = false;
                     long silenceTime = (cycleTime - blinkDuration);
                     ledChange = millis() + silenceTime;
                 }
