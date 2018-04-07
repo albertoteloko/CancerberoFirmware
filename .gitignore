@@ -39,3 +39,6 @@ AWS.h
 build/
 out/
 cmake-build-debug/
+
+.pioenvs
+.piolibdeps

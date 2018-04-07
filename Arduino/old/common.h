@@ -1,5 +1,5 @@
-#ifndef ALARM_H
-#define ALARM_H
+#ifndef COMMON_NODE_H
+#define COMMON_NODE_H
 
 // Arduino versioning.
 #if defined(ARDUINO) && ARDUINO >= 100
