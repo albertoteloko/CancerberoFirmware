@@ -56,13 +56,13 @@ namespace {
                 while (client.connected()) {
                     if (client.available()) {
                         char c = client.read();
-                        buffer[index++] = c;
                         if (c == '\n') {
                             String input = String(buffer);
                             Logger::debug(ETHERNET_TAG, "Received: " + input);
                             client.println(CommandHandler::processInput(input));
                             break;
-
+                        }else if (c != '\r') {
+                            buffer[index++] = c;
                         }
                     }
                 }

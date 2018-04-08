@@ -4,13 +4,13 @@
 //#include "events.h"
 
 enum LoggerLevel {
-    LL_UNKNOWN = 0x00,
-    LL_TRACE = 0x01,
-    LL_DEBUG = 0x02,
-    LL_INFO = 0x03,
-    LL_WARN = 0x04,
-    LL_ERROR = 0x05,
-    LL_FATAL = 0x06
+    LL_UNKNOWN = -1,
+    LL_TRACE = 1,
+    LL_DEBUG = 2,
+    LL_INFO =  3,
+    LL_WARN =  4,
+    LL_ERROR = 5,
+    LL_FATAL = 6
 };
 
 namespace {
@@ -35,6 +35,16 @@ namespace {
 
     class Logger {
     public:
+        static int setLevel(String input) {
+            LoggerLevel newLevel = toLevel(input);
+
+            if (newLevel != LL_UNKNOWN) {
+                level = newLevel;
+            }
+
+            return newLevel;
+        }
+
         static void trace(String tag, String message) { log(LL_TRACE, tag, message); }
 
         static void debug(String tag, String message) { log(LL_DEBUG, tag, message); }
@@ -49,6 +59,33 @@ namespace {
 
     private:
         static LoggerLevel level;
+
+        static LoggerLevel toLevel(String input) {
+            LoggerLevel newLevel = LL_UNKNOWN;
+
+            if (compareIgnoringCase(input, "TRACE")) {
+                newLevel = LL_TRACE;
+            } else if (compareIgnoringCase(input, "DEBUG")) {
+                newLevel = LL_DEBUG;
+            } else if (compareIgnoringCase(input, "INFO")) {
+                newLevel = LL_INFO;
+            } else if (compareIgnoringCase(input, "WARN")) {
+                newLevel = LL_WARN;
+            } else if (compareIgnoringCase(input, "ERROR")) {
+                newLevel = LL_ERROR;
+            } else if (compareIgnoringCase(input, "FATAL")) {
+                newLevel = LL_FATAL;
+            } else {
+                newLevel = LL_UNKNOWN;
+            }
+
+            if(newLevel != LL_UNKNOWN){
+                info("Log", "New log level: " + fromLevel(newLevel));
+            }
+
+            return newLevel;
+        }
+
 
         static void log(LoggerLevel traceLevel, String tag, String message) {
             if (level <= traceLevel) {
