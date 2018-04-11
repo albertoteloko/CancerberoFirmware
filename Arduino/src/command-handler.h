@@ -4,7 +4,7 @@
 #include "common/common.h"
 #include "log.h"
 #include <EEPROM.h>
-//#include "alarm/config.h"
+#include "alarm/config.h"
 //#include "alarm/engine.h"
 
 #define COMMAND_NOT_FOUND               -404

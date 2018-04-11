@@ -3,6 +3,7 @@
 
 #include "../common/common.h"
 #include "../log.h"
+#include <EEPROM.h>
 
 #define ALARM_DEFINITION_EEPROM_ADDRESS     0
 
@@ -96,8 +97,8 @@ namespace {
                 config.statusSource[i] = source[i];
             }
 
-//            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, config.status);
-//            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, config.statusSource);
+            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, config.status);
+            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, config.statusSource);
         }
 
         static void clear() {
@@ -107,11 +108,11 @@ namespace {
         }
 
         static void save() {
-//            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, config);
+            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, config);
         }
 
         static void load() {
-//            EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, config);
+            EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, config);
 
             if (config.status == AS_UNKNOWN) {
                 error(ALARM_CONFIG_TAG, "No status, setting idle one");
