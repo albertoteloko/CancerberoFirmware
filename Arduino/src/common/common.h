@@ -69,19 +69,10 @@ enum DPinInput {
 
 
 namespace {
-
-    String getCoreID() {
-        "TEST";
-    }
-
-    bool compareIgnoringCase(String s1, String s2) {
-        return s1.equalsIgnoreCase(s2);
-    }
-
     DPinInput toPinInput(String input) {
-        if (compareIgnoringCase(input, "DIGITAL") || compareIgnoringCase(input, "D")) {
+        if (input.equalsIgnoreCase("DIGITAL") || input.equalsIgnoreCase("D")) {
             return PIN_DIGITAL;
-        } else if (compareIgnoringCase(input, "ANALOG") || compareIgnoringCase(input, "A")) {
+        } else if (input.equalsIgnoreCase("ANALOG") || input.equalsIgnoreCase("A")) {
             return PIN_ANALOG;
         } else {
             return PIN_UNKNOWN;
@@ -100,19 +91,19 @@ namespace {
     }
 
     AlarmStatus toAlarmStatus(String input) {
-        if (compareIgnoringCase(input, "IDLE")) {
+        if (input.equalsIgnoreCase("IDLE")) {
             return AS_IDLE;
-        } else if (compareIgnoringCase(input, "ACTIVATING")) {
+        } else if (input.equalsIgnoreCase("ACTIVATING")) {
             return AS_ACTIVATING;
-        } else if (compareIgnoringCase(input, "ACTIVATED")) {
+        } else if (input.equalsIgnoreCase("ACTIVATED")) {
             return AS_ACTIVATED;
-        } else if (compareIgnoringCase(input, "SUSPICIOUS")) {
+        } else if (input.equalsIgnoreCase("SUSPICIOUS")) {
             return AS_SUSPICIOUS;
-        } else if (compareIgnoringCase(input, "ALARMED")) {
+        } else if (input.equalsIgnoreCase("ALARMED")) {
             return AS_ALARMED;
-        } else if (compareIgnoringCase(input, "SAFETY")) {
+        } else if (input.equalsIgnoreCase("SAFETY")) {
             return AS_SAFETY;
-        } else if (compareIgnoringCase(input, "SABOTAGE")) {
+        } else if (input.equalsIgnoreCase("SABOTAGE")) {
             return AS_SABOTAGE;
         } else {
             return AS_UNKNOWN;
@@ -141,19 +132,19 @@ namespace {
     }
 
     NodeStatus toNodeStatus(String input) {
-        if (compareIgnoringCase(input, "IDLE")) {
+        if (input.equalsIgnoreCase("IDLE")) {
             return NS_IDLE;
-        } else if (compareIgnoringCase(input, "ACTIVATING")) {
+        } else if (input.equalsIgnoreCase("ACTIVATING")) {
             return NS_ACTIVATING;
-        } else if (compareIgnoringCase(input, "ACTIVATED")) {
+        } else if (input.equalsIgnoreCase("ACTIVATED")) {
             return NS_ACTIVATED;
-        } else if (compareIgnoringCase(input, "SUSPICIOUS")) {
+        } else if (input.equalsIgnoreCase("SUSPICIOUS")) {
             return NS_SUSPICIOUS;
-        } else if (compareIgnoringCase(input, "ALARMED")) {
+        } else if (input.equalsIgnoreCase("ALARMED")) {
             return NS_ALARMED;
-        } else if (compareIgnoringCase(input, "SAFETY")) {
+        } else if (input.equalsIgnoreCase("SAFETY")) {
             return NS_SAFETY;
-        } else if (compareIgnoringCase(input, "SABOTAGE")) {
+        } else if (input.equalsIgnoreCase("SABOTAGE")) {
             return NS_SABOTAGE;
         } else {
             return NS_UNKNOWN;
@@ -182,13 +173,13 @@ namespace {
     }
 
     PinType toPinType(String input) {
-        if (compareIgnoringCase(input, "SENSOR") || compareIgnoringCase(input, "S")) {
+        if (input.equalsIgnoreCase("SENSOR") || input.equalsIgnoreCase("S")) {
             return PT_SENSOR;
-        } else if (compareIgnoringCase(input, "KEY") || compareIgnoringCase(input, "K")) {
+        } else if (input.equalsIgnoreCase("KEY") || input.equalsIgnoreCase("K")) {
             return PT_KEY;
-        } else if (compareIgnoringCase(input, "SABOTAGE") || compareIgnoringCase(input, "SAB")) {
+        } else if (input.equalsIgnoreCase("SABOTAGE") || input.equalsIgnoreCase("SAB")) {
             return PT_SABOTAGE;
-        } else if (compareIgnoringCase(input, "SAFETY") || compareIgnoringCase(input, "SAF")) {
+        } else if (input.equalsIgnoreCase("SAFETY") || input.equalsIgnoreCase("SAF")) {
             return PT_SAFETY;
         } else {
             return PT_UNKNOWN;
@@ -212,9 +203,9 @@ namespace {
     }
 
     DPinMode toPinMode(String input) {
-        if (compareIgnoringCase(input, "LOW") || compareIgnoringCase(input, "L")) {
+        if (input.equalsIgnoreCase("LOW") || input.equalsIgnoreCase("L")) {
             return PM_LOW;
-        } else if (compareIgnoringCase(input, "HIGH") ||compareIgnoringCase(input, "H")) {
+        } else if (input.equalsIgnoreCase("HIGH") ||input.equalsIgnoreCase("H")) {
             return PM_HIGH;
         } else {
             return PM_UNKNOWN;

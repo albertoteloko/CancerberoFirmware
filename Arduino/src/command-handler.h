@@ -10,20 +10,20 @@
 #define COMMAND_NOT_FOUND               -404
 
 
-const String COMMAND_TAG = "Command";
+#define COMMAND_TAG                     "Command"
 
 namespace {
 
     class CommandHandler {
     public:
         static int processInput(String message) {
-            Logger::info(COMMAND_TAG, "Incoming command: " + message);
+            info(COMMAND_TAG, "Incoming command: %s", message.c_str());
             if(message.startsWith("clear#")){
                 return clear();
-            } else if(message.startsWith("L.level#")){
-                return Logger::setLevel(getArgs(message));
+            } else if(message.startsWith("A.status#")){
+                return setAlarmStatus(getArgs(message));
             }else {
-                Logger::error(COMMAND_TAG, "Unknown command: " + message);
+                error(COMMAND_TAG, "Unknown command: %s", message.c_str());
                 return COMMAND_NOT_FOUND;
             }
 
@@ -36,12 +36,32 @@ namespace {
 //        static AlarmPin NO_PIN;
 
         static int clear(){
-            Logger::info(COMMAND_TAG, "Clear node");
+            info(COMMAND_TAG, "Clear node");
             for (int i = 0 ; i < EEPROM.length() ; i++) {
                 EEPROM.write(i, 0);
             }
 //            disableAlarm(input);
             return true;
+        }
+
+        static int setAlarmStatus(String input){
+            String value = input;
+//            String user = NO_SOURCE;
+//
+//            if (value.indexOf(",") > -1) {
+//                value = input.substring(0, input.indexOf(","));
+//                user = input.substring(input.indexOf(",") + 1);
+//            }
+//            AlarmStatus status = toAlarmStatus(value);
+//
+//            if (status != AS_UNKNOWN) {
+//                return Alarm::setStatus(status, user);
+//            } else {
+//                debug(COMMAND_TAG, "Unknown new master status: %s", value);
+//                return NS_UNKNOWN;
+//            }
+//            return true;
+return 0;
         }
 
         static String getArgs(String input){

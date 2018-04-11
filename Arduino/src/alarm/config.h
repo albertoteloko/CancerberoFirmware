@@ -2,13 +2,16 @@
 #define ALARM_CONFIG_H
 
 #include "../common/common.h"
+#include "../log.h"
 
-#define ALARM_DEFINITION_EEPROM_ADDRESS 0
+#define ALARM_DEFINITION_EEPROM_ADDRESS     0
 
 #define DEFAULT_STATUS_SOURCE               "Setup"
 #define DEFAULT_ACTIVATING_TIME             60000
 #define DEFAULT_SUSPICIOUS_TIME             30000
 #define SOURCE_LENGTH                       50
+
+const String ALARM_CONFIG_TAG = "AlarmConfig";
 
 namespace {
 
@@ -16,7 +19,6 @@ namespace {
         PinIds id;
         PinType type = PT_UNKNOWN;
         DPinMode mode = PM_UNKNOWN;
-        DPinInput input = PIN_UNKNOWN;
         int threshold;
     };
 
@@ -33,12 +35,8 @@ namespace {
 
     class AlarmConfig {
     private:
-        static RemoteLog log;
         static AlarmConfigStruct config;
     public:
-        static String statusName;
-
-
         static void set(long newActivatingTime, long newSuspiciousTime, AlarmPin newPins[MASTER_PIN_NUMBER]) {
             config.enabled = true;
             config.activatingTime = newActivatingTime;
@@ -93,14 +91,13 @@ namespace {
 
         static void setStatus(AlarmStatus newStatus, const char source[SOURCE_LENGTH]) {
             config.status = newStatus;
-            statusName = fromAlarmStatus(newStatus);
 
             for (int i = 0; i < SOURCE_LENGTH; ++i) {
                 config.statusSource[i] = source[i];
             }
 
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, config.status);
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, config.statusSource);
+//            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, config.status);
+//            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, config.statusSource);
         }
 
         static void clear() {
@@ -110,14 +107,14 @@ namespace {
         }
 
         static void save() {
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, config);
+//            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, config);
         }
 
         static void load() {
-            EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, config);
+//            EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, config);
 
             if (config.status == AS_UNKNOWN) {
-                log.error("No status, setting idle one");
+                error(ALARM_CONFIG_TAG, "No status, setting idle one");
                 config.status = AS_IDLE;
             }
 
@@ -126,8 +123,6 @@ namespace {
 
     };
 
-    RemoteLog AlarmConfig::log = RemoteLog("alarm-definition");
-    String AlarmConfig::statusName = "UNKNOWN";
     AlarmConfigStruct AlarmConfig::config = AlarmConfigStruct();
 }
 #endif

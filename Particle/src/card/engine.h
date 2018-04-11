@@ -118,7 +118,6 @@ namespace {
             for (uint8_t i = 0; i < mfrc522.uid.size; i++) {  //
                 readCard[i] = mfrc522.uid.uidByte[i];
             }
-            Serial.println("");
             mfrc522.PICC_HaltA();
             return true;
         }

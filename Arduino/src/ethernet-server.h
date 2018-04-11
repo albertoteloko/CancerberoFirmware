@@ -1,15 +1,13 @@
 #ifndef GATEWAY_ENGINE_H
 #define GATEWAY_ENGINE_H
 
-#include "../common/common.h"
-#include "../log.h"
-#include "../events.h"
-#include "../command-handler.h"
+#include "common/common.h"
+#include "log.h"
+#include "command-handler.h"
 
 #include <Ethernet.h>
-#include <ArduinoJson.h>
 
-const String ETHERNET_TAG = "Ethernet";
+#define ETHERNET_TAG "Ethernet"
 
 byte mac[] = { 0xCB, 0xCB, 0xCB, 0xCB, 0xCB, 0xCB };
 byte ip[] = { 10, 10, 0, 70 };
@@ -17,16 +15,9 @@ byte ip[] = { 10, 10, 0, 70 };
 
 namespace {
 
-    class EthernetGatewayConfig;
-
     class EthernetGateway {
 
     public:
-
-        static void publish(String message) {
-
-//            Particle.publish(eventName, payload);
-        };
 
         static void start() {
             pinMode(ADDRESS_SELECT_PIN, OUTPUT);
@@ -36,29 +27,27 @@ namespace {
                 ip[3] = 71;
               }
 
-            printMAC();
-            printIP();
-
             Ethernet.begin(mac, ip);
             server.begin();
 
-            Serial.print("Server is at ");
-            Serial.println(Ethernet.localIP());
+            info(ETHERNET_TAG, "MAC: %02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            info(ETHERNET_TAG, "IP: %u.%u.%u.%u", ip[0],ip[1],ip[2],ip[3]);
+            IPAddress serverIp = Ethernet.localIP();
+            info(ETHERNET_TAG, "Server real IP: %u.%u.%u.%u", serverIp[0],serverIp[1],serverIp[2],serverIp[3]);
         }
 
         static void loop() {
             EthernetClient client = server.available();
             if (client) {
                 memset(&buffer[0], 0, sizeof(buffer));
-                DynamicJsonBuffer jsonBuffer(1024);
-                Logger::info(ETHERNET_TAG, "Client connected");
+                info(ETHERNET_TAG, "Client connected");
                 unsigned int index = 0;
                 while (client.connected()) {
                     if (client.available()) {
                         char c = client.read();
                         if (c == '\n') {
                             String input = String(buffer);
-                            Logger::debug(ETHERNET_TAG, "Received: " + input);
+                            debug(ETHERNET_TAG, "Received: %s");
                             client.println(CommandHandler::processInput(input));
                             break;
                         }else if (c != '\r') {
@@ -69,7 +58,7 @@ namespace {
                 client.flush();
                 delay(10);
                 client.stop();
-                Logger::info(ETHERNET_TAG, "Client disconnected");
+                info(ETHERNET_TAG, "Client disconnected");
             }
         }
 
@@ -78,40 +67,31 @@ namespace {
         static EthernetClient client;
         static char buffer[1024];
 
-        static void sendSuccess(EthernetClient client, String message) {
-            DynamicJsonBuffer jsonBuffer(1024);
-            JsonObject &root = jsonBuffer.createObject();
-            root["message"] = message;
-            root.printTo(client);
-            client.println(message);
-        }
-
-        static void printMAC(){
-          Serial.print("MAC: ");
+        static String getMAC(){
+          String result = "";
           for (int i=0; i <= 5; i++){
             if(i!=0){
-              Serial.print(":");
+              result += ":";
             }
-            Serial.print(mac[i], HEX);
+            result += sprintf("%02X", mac[i]);
           }
-          Serial.println();
+          return result;
         }
 
-        static void printIP(){
-          Serial.print("IP:  ");
+        static String getIP(){
+          String result = "";
           for (int i=0; i <= 3; i++){
             if(i!=0){
-              Serial.print(".");
+              result += ".";
             }
-            Serial.print(ip[i]);
+            result += ip[i];
           }
-          Serial.println();
+          return result;
         }
 
     };
 
     EthernetServer EthernetGateway::server = EthernetServer(5555);
-    EthernetClient EthernetGateway::client;
     char EthernetGateway::buffer[1024];
 }
 #endif

@@ -1,15 +1,20 @@
 #ifndef ALARM_ENGINE_H
 #define ALARM_ENGINE_H
 
+#include "../common/common.h"
 #include "../log.h"
 #include "../events.h"
-#include "../common/common.h"
 #include "config.h"
 
 #define NO_SOURCE               "Unknown"
 #define KEY                     "Key"
 
+
+const String ALARM_TAG = "Alarm";
+
 namespace {
+
+    class EventDispatcher;
 
     class Alarm {
 
@@ -44,7 +49,7 @@ namespace {
                 AlarmConfig::forEachDefinedPin(setPinInput);
                 setStatus(AlarmConfig::getStatus(), true, NO_SOURCE);
             } else {
-                log.info("Alarm disabled");
+                Logger::info(ALARM_TAG, "Alarm disabled");
             }
         }
 
@@ -72,7 +77,7 @@ namespace {
         }
 
         static void key(String source) {
-            log.info("KEY trigger!");
+            Logger::info(ALARM_TAG, "KEY trigger!");
             if (AlarmConfig::getStatus() != AS_IDLE) {
                 setStatus(AS_IDLE, source);
             } else {
@@ -81,7 +86,6 @@ namespace {
         }
 
     private:
-        static RemoteLog log;
         static bool activations[MASTER_PIN_NUMBER];
         static long pinTimes[MASTER_PIN_NUMBER];
         static unsigned long statusTime;
@@ -97,14 +101,14 @@ namespace {
         static int setStatus(AlarmStatus newStatus, bool forceChange, String source) {
             AlarmStatus currentStatus = AlarmConfig::getStatus();
             if (newStatus == AS_UNKNOWN) {
-                log.debug("Unknown status");
+                Logger::debug(ALARM_TAG,"Unknown status");
                 return AS_UNKNOWN;
             } else if ((newStatus == currentStatus) && !forceChange) {
-                log.debug("Unchanged status: " + fromAlarmStatus(newStatus));
+                Logger::debug(ALARM_TAG,"Unchanged status: %s", fromAlarmStatus(newStatus));
                 return AS_UNCHANGED;
             } else {
                 AlarmConfig::setStatus(newStatus, source.c_str());
-                log.info("Changed status to: " + AlarmConfig::statusName + ", source: " + source);
+                Logger::info(ALARM_TAG, "Changed status to: %s, source: %s",fromAlarmStatus(newStatus).c_str(), source);
 
                 statusTime = millis();
                 EventDispatcher::publishAlarmStatusChange(AlarmConfig::getStatus(), source);
@@ -140,22 +144,22 @@ namespace {
             bool lastActivation = activations[pinIndex];
             int currentValue;
 
-            if(pin.input  == PIN_ANALOG) {
-                currentValue = analogRead(pin.id);
-            } else {
-                currentValue = digitalRead(pin.id);
-            }
+//            if(pin.input  == PIN_ANALOG) {
+//                currentValue = analogRead(pin.id);
+//            } else {
+//                currentValue = digitalRead(pin.id);
+//            }
 
             bool currentActivation = isPinActivated(pin, currentValue);
 
             if((pinTimes[pinIndex] == 0) || ((pinTimes[pinIndex] + PIN_INFORM_INTERVAL) < time)){
-                log.info("Informing pin " + pinName + " has value of " + currentValue);
+                Logger::info(ALARM_TAG, "Informing pin %s has value of %i",pinName.c_str(), currentValue);
                 informValue = true;
                 pinTimes[pinIndex] = time;
             }
 
             if (currentActivation != lastActivation) {
-                log.info("Pin activation changed " + pinName + " to " + (currentActivation ? "enabled" : "disabled") + " value: " + currentValue);
+                Logger::info(ALARM_TAG, "Pin activation changed %s to value: %i", pinName.c_str(), (currentActivation ? "enabled" : "disabled"), currentValue);
                 informValue = true;
                 pinActivatedChange(pin, currentActivation);
                 activations[pinIndex] = currentActivation;
@@ -167,15 +171,16 @@ namespace {
         }
 
         static bool isPinActivated(AlarmPin pin, int value){
-            if(pin.input == PIN_DIGITAL){
-                return (value == pin.mode);
-            }else{
-                if(pin.mode == PM_HIGH){
-                    return (value >= pin.threshold);
-                }else{
-                    return (value <= pin.threshold);
-                }
-            }
+//            if(pin.input == PIN_DIGITAL){
+//                return (value == pin.mode);
+//            }else{
+//                if(pin.mode == PM_HIGH){
+//                    return (value >= pin.threshold);
+//                }else{
+//                    return (value <= pin.threshold);
+//                }
+//            }
+return false;
         }
 
         static void pinActivatedChange(AlarmPin pin, bool currentActivation) {
@@ -183,13 +188,13 @@ namespace {
 
             if(currentActivation){
                 if (pin.type == PT_SABOTAGE) {
-                    log.warn("The node is under sabotage!");
+                    Logger::warn(ALARM_TAG,"The node is under sabotage!");
                     setStatus(AS_SABOTAGE, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_SAFETY) {
-                    log.warn("The node is under safety!");
+                    Logger::warn(ALARM_TAG,"The node is under safety!");
                     setStatus(AS_SAFETY, "P:" + fromPinIds(pin.id));
                 } else if ((pin.type == PT_SENSOR) && (currentStatus == AS_ACTIVATED)) {
-                    log.info("Sensor trigger!");
+                    Logger::info(ALARM_TAG, "Sensor trigger!");
                     setStatus(AS_SUSPICIOUS, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_KEY) {
                     if (currentStatus != AS_SABOTAGE) {
@@ -200,12 +205,11 @@ namespace {
         }
 
         static void setPinInput(int index, AlarmPin pin) {
-            log.debug("Pin " + fromPinIds(pin.id) + " is type " + fromPinType(pin.type) + " and mode " + fromPinMode(pin.mode));
+            Logger::debug(ALARM_TAG,"Pin %s is type %s and mode %s",fromPinIds(pin.id).c_str(), fromPinType(pin.type).c_str(), fromPinMode(pin.mode).c_str());
             pinMode(pin.id, INPUT);
         }
     };
 
-    RemoteLog Alarm::log = RemoteLog("alarm-engine");
     bool Alarm::activations[MASTER_PIN_NUMBER];
     long Alarm::pinTimes[MASTER_PIN_NUMBER];
     unsigned long Alarm::statusTime = millis();

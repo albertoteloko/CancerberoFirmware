@@ -1,10 +1,11 @@
 #ifndef NODE_ENGINE_H
 #define NODE_ENGINE_H
 
-#include "../common/common.h"
-#include "../log.h"
-//#include "../alarm/engine.h"
-#include "../ethernet-gateway/engine.h"
+#include "common/common.h"
+#include "log.h"
+#include "events.h"
+//#include "alarm/engine.h"
+#include "ethernet-server.h"
 
 #define DEFAULT_BLINK_DURATION                          1000
 #define DEFAULT_BLINK_PERIOD                            30000
@@ -19,11 +20,10 @@
 #define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN              900
 #define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MAX              3000
 
-const String NODE_TAG = "Node";
+#define NODE_TAG                                        "Node"
 
 namespace {
-
-    class AlarmConfig {
+  class AlarmConfig {
        public:
        static AlarmStatus getStatus() {
            return AS_ACTIVATING;
@@ -37,8 +37,6 @@ namespace {
            return 15;
        }
     };
-
-
     class NodeEngine {
 
     public:
@@ -96,11 +94,11 @@ namespace {
 
         static void setStatus(NodeStatus newStatus) {
             if (newStatus == NS_UNKNOWN) {
-                Logger::debug(NODE_TAG,"Unknown status");
+                debug(NODE_TAG,"Unknown status");
             } else {
                 status = newStatus;
                 String statusName = fromNodeStatus(status);
-                Logger::info(NODE_TAG, "Changed status to: " + statusName);
+                info(NODE_TAG, "Changed status to: %s", statusName.c_str());
 
                 ledOn = false;
                 beeping = false;

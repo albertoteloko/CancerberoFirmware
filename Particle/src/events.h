@@ -10,7 +10,7 @@ namespace {
     class EventDispatcher {
     public:
         static void publishLog(String level, String className, String message) {
-            StaticJsonBuffer<2048> jsonBuffer;
+            DynamicJsonBuffer jsonBuffer(512);
 
             String name = "log";
 
@@ -28,7 +28,7 @@ namespace {
         }
 
         static void publishAlarmStatusChange(AlarmStatus status, String source) {
-            StaticJsonBuffer<256> jsonBuffer;
+            DynamicJsonBuffer jsonBuffer(512);
             String name = "alarm-status-changed";
 
             JsonObject &root = jsonBuffer.createObject();
@@ -44,7 +44,7 @@ namespace {
         }
 
         static void publishPinValue(String pinName, int currentValue) {
-            StaticJsonBuffer<256> jsonBuffer;
+            DynamicJsonBuffer jsonBuffer(512);
             String name = "alarm-pin-value";
 
             JsonObject &root = jsonBuffer.createObject();
@@ -60,7 +60,7 @@ namespace {
         }
 
         static void publish(String eventName) {
-            StaticJsonBuffer<256> jsonBuffer;
+            DynamicJsonBuffer jsonBuffer(512);
 
             JsonObject &root = jsonBuffer.createObject();
             root["type"] = eventName;
