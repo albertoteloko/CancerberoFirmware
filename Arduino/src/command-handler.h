@@ -5,7 +5,7 @@
 #include "log.h"
 #include <EEPROM.h>
 #include "alarm/config.h"
-//#include "alarm/engine.h"
+#include "alarm/engine.h"
 
 #define COMMAND_NOT_FOUND               -404
 
@@ -23,7 +23,7 @@ namespace {
             } else if(message.startsWith("A.status#")){
                 return setAlarmStatus(getArgs(message));
             }else {
-                error(COMMAND_TAG, "Unknown command: %s", message.c_str());
+//                error(COMMAND_TAG, "Unknown command: %s", message.c_str());
                 return COMMAND_NOT_FOUND;
             }
 
@@ -45,23 +45,14 @@ namespace {
         }
 
         static int setAlarmStatus(String input){
-            String value = input;
-//            String user = NO_SOURCE;
-//
-//            if (value.indexOf(",") > -1) {
-//                value = input.substring(0, input.indexOf(","));
-//                user = input.substring(input.indexOf(",") + 1);
-//            }
-//            AlarmStatus status = toAlarmStatus(value);
-//
-//            if (status != AS_UNKNOWN) {
-//                return Alarm::setStatus(status, user);
-//            } else {
-//                debug(COMMAND_TAG, "Unknown new master status: %s", value);
-//                return NS_UNKNOWN;
-//            }
-//            return true;
-return 0;
+            AlarmStatus status = toAlarmStatus(input);
+            if (status != AS_UNKNOWN) {
+                return Alarm::setStatus(status);
+            } else {
+                debug(COMMAND_TAG, "Unknown new master status: %s", input.c_str());
+                return NS_UNKNOWN;
+            }
+            return -1;
         }
 
         static String getArgs(String input){

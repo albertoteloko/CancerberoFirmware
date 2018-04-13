@@ -2,7 +2,7 @@
 #define COMMON_MICRO_H
 
 #define PIN_INFORM_INTERVAL     5 * 60 * 1000
-#define MASTER_PIN_NUMBER       10
+#define MASTER_PIN_NUMBER       6
 
 #define ALARM_PIN               9
 

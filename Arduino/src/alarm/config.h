@@ -7,12 +7,10 @@
 
 #define ALARM_DEFINITION_EEPROM_ADDRESS     0
 
-#define DEFAULT_STATUS_SOURCE               "Setup"
 #define DEFAULT_ACTIVATING_TIME             60000
 #define DEFAULT_SUSPICIOUS_TIME             30000
-#define SOURCE_LENGTH                       50
 
-const String ALARM_CONFIG_TAG = "AlarmConfig";
+#define ALARM_CONFIG_TAG                    "AlarmConfig"
 
 namespace {
 
@@ -20,14 +18,11 @@ namespace {
         PinIds id;
         PinType type = PT_UNKNOWN;
         DPinMode mode = PM_UNKNOWN;
-        int threshold;
     };
 
     struct AlarmConfigStruct {
-        bool enabled = false;
         AlarmStatus status = AS_IDLE;
-        char statusSource[SOURCE_LENGTH] = DEFAULT_STATUS_SOURCE;
-        DPinMode outputMode = PM_HIGH;
+        PinIds statusSource = PI_UNKNOWN;
         int activatingTime = DEFAULT_ACTIVATING_TIME;
         int suspiciousTime = DEFAULT_SUSPICIOUS_TIME;
         AlarmPin pins[MASTER_PIN_NUMBER];
@@ -39,7 +34,6 @@ namespace {
         static AlarmConfigStruct config;
     public:
         static void set(long newActivatingTime, long newSuspiciousTime, AlarmPin newPins[MASTER_PIN_NUMBER]) {
-            config.enabled = true;
             config.activatingTime = newActivatingTime;
             config.suspiciousTime = newSuspiciousTime;
 
@@ -51,25 +45,17 @@ namespace {
         }
 
         static void forEachPin(void (*f)(int, AlarmPin)) {
-            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-                (*f)(i, config.pins[i]);
-            }
+//            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
+//                (*f)(i, config.pins[i]);
+//            }
         }
 
         static void forEachDefinedPin(void (*f)(int, AlarmPin)) {
-            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-                if ((config.pins[i].id != PI_UNKNOWN) && (config.pins[i].type != PT_UNKNOWN) && (config.pins[i].mode != PM_UNKNOWN)) {
-                    (*f)(i, config.pins[i]);
-                }
-            }
-        }
-
-        static bool enabled() {
-            return config.enabled;
-        }
-
-        static DPinMode outputMode() {
-            return config.outputMode;
+//            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
+//                if ((config.pins[i].id != PI_UNKNOWN) && (config.pins[i].type != PT_UNKNOWN) && (config.pins[i].mode != PM_UNKNOWN)) {
+//                    (*f)(i, config.pins[i]);
+//                }
+//            }
         }
 
         static int activatingTime() {
@@ -85,20 +71,17 @@ namespace {
         }
 
 
-        static String getStatusSource() {
-            return String(config.statusSource);
+        static PinIds getStatusSource() {
+            return config.statusSource;
         }
 
 
-        static void setStatus(AlarmStatus newStatus, const char source[SOURCE_LENGTH]) {
+        static void setStatus(AlarmStatus newStatus, PinIds source) {
             config.status = newStatus;
+            config.statusSource = source;
 
-            for (int i = 0; i < SOURCE_LENGTH; ++i) {
-                config.statusSource[i] = source[i];
-            }
-
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, config.status);
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, config.statusSource);
+            EEPROM.put(0, config.status);
+            EEPROM.put(1, config.statusSource);
         }
 
         static void clear() {
@@ -108,11 +91,11 @@ namespace {
         }
 
         static void save() {
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS, config);
+            EEPROM.put(0, config);
         }
 
         static void load() {
-            EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, config);
+            EEPROM.get(0, config);
 
             if (config.status == AS_UNKNOWN) {
                 error(ALARM_CONFIG_TAG, "No status, setting idle one");

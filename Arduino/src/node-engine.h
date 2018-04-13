@@ -4,7 +4,7 @@
 #include "common/common.h"
 #include "log.h"
 #include "events.h"
-//#include "alarm/engine.h"
+#include "alarm/engine.h"
 #include "alarm/config.h"
 #include "ethernet-server.h"
 
@@ -45,12 +45,12 @@ namespace {
             pinMode(LED_RED_PIN, OUTPUT);
             pinMode(SPEAKER_PIN, OUTPUT);
 
-//            Alarm::start();
             EthernetGateway::start();
+            Alarm::start();
         }
 
         static void loop() {
-//            Alarm::loop();
+            Alarm::loop();
             EthernetGateway::loop();
 
             NodeStatus currentStatus = getCurrentStatus();

@@ -47,7 +47,7 @@ namespace {
                         char c = client.read();
                         if (c == '\n') {
                             String input = String(buffer);
-                            debug(ETHERNET_TAG, "Received: %s");
+//                            debug(ETHERNET_TAG, "Received: %s");
                             client.println(CommandHandler::processInput(input));
                             break;
                         }else if (c != '\r') {
@@ -65,7 +65,7 @@ namespace {
     private:
         static EthernetServer server;
         static EthernetClient client;
-        static char buffer[1024];
+        static char buffer[64];
 
         static String getMAC(){
           String result = "";
@@ -92,6 +92,6 @@ namespace {
     };
 
     EthernetServer EthernetGateway::server = EthernetServer(5555);
-    char EthernetGateway::buffer[1024];
+    char EthernetGateway::buffer[64];
 }
 #endif
