@@ -22,6 +22,8 @@ namespace {
                 return clear();
             } else if(message.startsWith("A.status#")){
                 return setAlarmStatus(getArgs(message));
+            } else if(message.startsWith("A.disable#")){
+                return disableAlarm();
             }else {
 //                error(COMMAND_TAG, "Unknown command: %s", message.c_str());
                 return COMMAND_NOT_FOUND;
@@ -40,19 +42,31 @@ namespace {
             for (int i = 0 ; i < EEPROM.length() ; i++) {
                 EEPROM.write(i, 0);
             }
-//            disableAlarm(input);
+            disableAlarm();
             return true;
         }
 
         static int setAlarmStatus(String input){
-            AlarmStatus status = toAlarmStatus(input);
+            String value = input;
+            String user = NO_SOURCE;
+
+            if (value.indexOf(",") > -1) {
+                value = input.substring(0, input.indexOf(","));
+                user = input.substring(input.indexOf(",") + 1);
+            }
+            AlarmStatus status = toAlarmStatus(value);
+
             if (status != AS_UNKNOWN) {
-                return Alarm::setStatus(status);
+                return Alarm::setStatus(status, user);
             } else {
                 debug(COMMAND_TAG, "Unknown new master status: %s", input.c_str());
                 return NS_UNKNOWN;
             }
-            return -1;
+        }
+
+        static int disableAlarm() {
+            Alarm::disable();
+            return true;
         }
 
         static String getArgs(String input){

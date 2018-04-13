@@ -50,7 +50,7 @@ namespace {
         }
 
         static void loop() {
-            Alarm::loop();
+//            Alarm::loop();
             EthernetGateway::loop();
 
             NodeStatus currentStatus = getCurrentStatus();

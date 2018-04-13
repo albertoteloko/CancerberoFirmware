@@ -9,8 +9,8 @@ namespace {
 
     class EventDispatcher {
     public:
-        static void publishAlarmStatusChange(AlarmStatus status, PinIds source) {
-            String json = "{\"type\":\"alarm-status-changed\",\"value\":\"" + fromAlarmStatus(status) + "\",\"source\":\"" + fromPinIds(source)+"\"}";
+        static void publishAlarmStatusChange(AlarmStatus status, String source) {
+            String json = "{\"type\":\"alarm-status-changed\",\"value\":\"" + fromAlarmStatus(status) + "\",\"source\":\"" + source+"\"}";
             publish(json);
         }
 

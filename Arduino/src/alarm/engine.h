@@ -6,8 +6,7 @@
 #include "../events.h"
 #include "config.h"
 
-
-
+#define NO_SOURCE               "Unknown"
 #define ALARM_TAG               "Alarm"
 
 namespace {
@@ -29,7 +28,7 @@ namespace {
 
         static void start() {
             AlarmConfig::load();
-//            setup();
+            setup();
         }
 
         static void stop() {
@@ -37,34 +36,36 @@ namespace {
         }
 
         static void setup() {
-            pinMode(ALARM_PIN, OUTPUT);
+            if (AlarmConfig::enabled()) {
+                pinMode(ALARM_PIN, OUTPUT);
 
-            AlarmConfig::forEachDefinedPin(setPinInput);
-            setStatus(AlarmConfig::getStatus(), true, PI_UNKNOWN);
+                AlarmConfig::forEachDefinedPin(setPinInput);
+                setStatus(AlarmConfig::getStatus(), true, NO_SOURCE);
+            } else {
+                info(ALARM_TAG, "Alarm disabled");
+            }
         }
 
         static void loop() {
-            AlarmConfig::forEachDefinedPin(readSensor);
+            if (AlarmConfig::enabled()) {
+                AlarmConfig::forEachDefinedPin(readSensor);
 
-            if(mustInform()){
-                latestNotifications = millis();
-            }
-
-            if ((AlarmConfig::getStatus() == AS_ACTIVATING) &&
-                (millis() >= statusTime + AlarmConfig::activatingTime())) {
-                setStatus(AS_ACTIVATED, AlarmConfig::getStatusSource());
-            }
-            if ((AlarmConfig::getStatus() == AS_SUSPICIOUS) &&
-                (millis() >= statusTime + AlarmConfig::suspiciousTime())) {
-                setStatus(AS_ALARMED, AlarmConfig::getStatusSource());
+                if ((AlarmConfig::getStatus() == AS_ACTIVATING) &&
+                    (millis() >= statusTime + AlarmConfig::activatingTime())) {
+                    setStatus(AS_ACTIVATED, AlarmConfig::getStatusSource());
+                }
+                if ((AlarmConfig::getStatus() == AS_SUSPICIOUS) &&
+                    (millis() >= statusTime + AlarmConfig::suspiciousTime())) {
+                    setStatus(AS_ALARMED, AlarmConfig::getStatusSource());
+                }
             }
         }
 
         static int setStatus(AlarmStatus newStatus) {
-            return setStatus(newStatus, PI_UNKNOWN);
+            return setStatus(newStatus, NO_SOURCE);
         }
 
-        static int setStatus(AlarmStatus newStatus, PinIds source) {
+        static int setStatus(AlarmStatus newStatus, String source) {
             return setStatus(newStatus, false, source);
         }
 
@@ -72,9 +73,8 @@ namespace {
         static bool activations[MASTER_PIN_NUMBER];
         static long pinTimes[MASTER_PIN_NUMBER];
         static unsigned long statusTime;
-        static unsigned long latestNotifications;
 
-        static int setStatus(AlarmStatus newStatus, bool forceChange, PinIds source) {
+        static int setStatus(AlarmStatus newStatus, bool forceChange, String source) {
             AlarmStatus currentStatus = AlarmConfig::getStatus();
             if (newStatus == AS_UNKNOWN) {
                 debug(ALARM_TAG,"Unknown status");
@@ -83,8 +83,8 @@ namespace {
                 debug(ALARM_TAG,"Unchanged status: %s", fromAlarmStatus(newStatus).c_str());
                 return AS_UNCHANGED;
             } else {
-                AlarmConfig::setStatus(newStatus, source);
-                info(ALARM_TAG, "Changed status to: %s, source: %s",fromAlarmStatus(newStatus).c_str(), fromPinIds(source).c_str());
+                AlarmConfig::setStatus(newStatus, source.c_str());
+                info(ALARM_TAG, "Changed status to: %s, source: %s",fromAlarmStatus(newStatus).c_str(), source.c_str());
 
                 statusTime = millis();
                 EventDispatcher::publishAlarmStatusChange(AlarmConfig::getStatus(), source);
@@ -114,9 +114,10 @@ namespace {
 
             bool currentActivation = isPinActivated(pin, currentValue);
 
-            if(mustInform()){
-                info(ALARM_TAG, "Informing pin %s has value of %i",pinName.c_str(), currentValue);
+            if((pinTimes[pinIndex] == 0) || ((pinTimes[pinIndex] + PIN_INFORM_INTERVAL) < time)){
+                info(ALARM_TAG, "Informing pin %s has value of %i", pinName.c_str(), currentValue);
                 informValue = true;
+                pinTimes[pinIndex] = time;
             }
 
             if (currentActivation != lastActivation) {
@@ -131,9 +132,6 @@ namespace {
             }
         }
 
-        static bool mustInform(){
-            return (latestNotifications == 0) || (latestNotifications + PIN_INFORM_INTERVAL) < millis();
-        }
 
         static bool isPinActivated(AlarmPin pin, int value){
 //            if(pin.input == PIN_DIGITAL){
@@ -154,13 +152,13 @@ return false;
             if(currentActivation){
                 if (pin.type == PT_SABOTAGE) {
                     warn(ALARM_TAG,"The node is under sabotage!");
-                    setStatus(AS_SABOTAGE, pin.id);
+                    setStatus(AS_SABOTAGE, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_SAFETY) {
                     warn(ALARM_TAG,"The node is under safety!");
-                    setStatus(AS_SAFETY, pin.id);
+                    setStatus(AS_SAFETY, "P:" + fromPinIds(pin.id));
                 } else if ((pin.type == PT_SENSOR) && (currentStatus == AS_ACTIVATED)) {
                     info(ALARM_TAG, "Sensor trigger!");
-                    setStatus(AS_SUSPICIOUS, pin.id);
+                    setStatus(AS_SUSPICIOUS, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_KEY) {
                     if (currentStatus != AS_SABOTAGE) {
                         key(pin.id);
@@ -172,9 +170,9 @@ return false;
       static void key(PinIds source) {
             info(ALARM_TAG, "KEY trigger!");
             if (AlarmConfig::getStatus() != AS_IDLE) {
-                setStatus(AS_IDLE, source);
+                setStatus(AS_IDLE, "P:" + fromPinIds(source));
             } else {
-                setStatus(AS_ACTIVATING, source);
+                setStatus(AS_ACTIVATING, "P:" + fromPinIds(source));
             }
         }
 
@@ -185,7 +183,7 @@ return false;
     };
 
     bool Alarm::activations[MASTER_PIN_NUMBER];
+    long Alarm::pinTimes[MASTER_PIN_NUMBER];
     unsigned long Alarm::statusTime = millis();
-    unsigned long Alarm::latestNotifications = millis();
 }
 #endif
