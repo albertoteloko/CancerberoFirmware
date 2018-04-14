@@ -42,7 +42,7 @@ namespace {
                 #endif
 
                 AlarmConfig::forEachDefinedPin(setPinInput);
-                setStatus(AlarmConfig::getStatus(), true, NO_SOURCE);
+                setStatus(AlarmConfig::getStatus(), true, AlarmConfig::getStatusSource());
             } else {
                 log.info("Alarm disabled");
             }

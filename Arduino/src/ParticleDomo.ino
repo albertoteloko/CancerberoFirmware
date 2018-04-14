@@ -12,6 +12,15 @@ void setup() {
 
     info(TAG, "Particle Domo v1.0");
     NodeEngine::start();
+
+    Serial.print("a->");
+    Serial.println(StrToHex("a"));
+}
+
+
+int StrToHex(char str[])
+{
+  return (int) strtol(str, 0, 16);
 }
 
 void loop() {

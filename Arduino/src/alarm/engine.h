@@ -40,7 +40,7 @@ namespace {
                 pinMode(ALARM_PIN, OUTPUT);
 
                 AlarmConfig::forEachDefinedPin(setPinInput);
-                setStatus(AlarmConfig::getStatus(), true, NO_SOURCE);
+                setStatus(AlarmConfig::getStatus(), true, AlarmConfig::getStatusSource());
             } else {
                 info(ALARM_TAG, "Alarm disabled");
             }

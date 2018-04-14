@@ -21,7 +21,7 @@ namespace {
         PinType type = PT_UNKNOWN;
         DPinMode mode = PM_UNKNOWN;
         DPinInput input = PIN_UNKNOWN;
-        int threshold;
+        unsigned char threshold;
     };
 
     struct AlarmConfigStruct {
@@ -40,6 +40,7 @@ namespace {
     public:
         static void set(long newActivatingTime, long newSuspiciousTime, AlarmPin newPins[MASTER_PIN_NUMBER]) {
             config.enabled = true;
+            config.status = AS_ACTIVATED;
             config.activatingTime = newActivatingTime;
             config.suspiciousTime = newSuspiciousTime;
 
@@ -92,9 +93,7 @@ namespace {
             for (int i = 0; i < SOURCE_LENGTH; ++i) {
                 config.statusSource[i] = source[i];
             }
-
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 1, config.status);
-            EEPROM.put(ALARM_DEFINITION_EEPROM_ADDRESS + 2, config.statusSource);
+            save();
         }
 
         static void clear() {
@@ -129,7 +128,7 @@ namespace {
         static void load() {
             EEPROM.get(ALARM_DEFINITION_EEPROM_ADDRESS, config);
 
-            if (config.status == AS_UNKNOWN) {
+            if (toAlarmStatus(fromAlarmStatus(config.status))  == AS_UNKNOWN) {
                 error(ALARM_CONFIG_TAG, "No status, setting idle one");
                 config.status = AS_IDLE;
             }
