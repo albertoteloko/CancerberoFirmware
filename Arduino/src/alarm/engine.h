@@ -1,7 +1,7 @@
 #ifndef ALARM_ENGINE_H
 #define ALARM_ENGINE_H
 
-#include "../common/common.h"
+#include "../common.h"
 #include "../log.h"
 #include "../events.h"
 #include "config.h"
@@ -16,48 +16,28 @@ namespace {
     class Alarm {
 
     public:
-        static void enable(long activatingTime, long suspiciousTime, AlarmPin pins[MASTER_PIN_NUMBER]) {
-            AlarmConfig::set(activatingTime, suspiciousTime, pins);
-            setup();
-        }
-
-        static void disable() {
-            AlarmConfig::clear();
-            setup();
-        }
-
         static void start() {
             AlarmConfig::load();
             setup();
         }
 
-        static void stop() {
-            AlarmConfig::save();
-        }
-
         static void setup() {
-            if (AlarmConfig::enabled()) {
-                pinMode(ALARM_PIN, OUTPUT);
+            pinMode(ALARM_PIN, OUTPUT);
 
-                AlarmConfig::forEachDefinedPin(setPinInput);
-                setStatus(AlarmConfig::getStatus(), true, AlarmConfig::getStatusSource());
-            } else {
-                info(ALARM_TAG, "Alarm disabled");
-            }
+            AlarmConfig::forEachDefinedPin(setPinInput);
+            setStatus(AlarmConfig::getStatus(), true, AlarmConfig::getStatusSource());
         }
 
         static void loop() {
-            if (AlarmConfig::enabled()) {
-                AlarmConfig::forEachDefinedPin(readSensor);
+            AlarmConfig::forEachDefinedPin(readSensor);
 
-                if ((AlarmConfig::getStatus() == AS_ACTIVATING) &&
-                    (millis() >= statusTime + AlarmConfig::activatingTime())) {
-                    setStatus(AS_ACTIVATED, AlarmConfig::getStatusSource());
-                }
-                if ((AlarmConfig::getStatus() == AS_SUSPICIOUS) &&
-                    (millis() >= statusTime + AlarmConfig::suspiciousTime())) {
-                    setStatus(AS_ALARMED, AlarmConfig::getStatusSource());
-                }
+            if ((AlarmConfig::getStatus() == AS_ACTIVATING) &&
+                (millis() >= statusTime + ACTIVATING_TIME)) {
+                setStatus(AS_ACTIVATED, AlarmConfig::getStatusSource());
+            }
+            if ((AlarmConfig::getStatus() == AS_SUSPICIOUS) &&
+                (millis() >= statusTime + SUSPICIOUS_TIME)) {
+                setStatus(AS_ALARMED, AlarmConfig::getStatusSource());
             }
         }
 
@@ -80,11 +60,11 @@ namespace {
                 debug(ALARM_TAG,"Unknown status");
                 return AS_UNKNOWN;
             } else if ((newStatus == currentStatus) && !forceChange) {
-                debug(ALARM_TAG,"Unchanged status: %s", fromAlarmStatus(newStatus).c_str());
+                debug(ALARM_TAG,"Unchanged status: " +  fromAlarmStatus(newStatus));
                 return AS_UNCHANGED;
             } else {
                 AlarmConfig::setStatus(newStatus, source.c_str());
-                info(ALARM_TAG, "Changed status to: %s, source: %s",fromAlarmStatus(newStatus).c_str(), source.c_str());
+                info(ALARM_TAG, "Changed status to: " + fromAlarmStatus(newStatus) + ", source: " + source);
 
                 statusTime = millis();
                 EventDispatcher::publishAlarmStatusChange(AlarmConfig::getStatus(), source);
@@ -115,13 +95,13 @@ namespace {
             bool currentActivation = isPinActivated(pin, currentValue);
 
             if((pinTimes[pinIndex] == 0) || ((pinTimes[pinIndex] + PIN_INFORM_INTERVAL) < time)){
-                info(ALARM_TAG, "Informing pin %s has value of %i", pinName.c_str(), currentValue);
+                info(ALARM_TAG, "Informing pin " + pinName + " has value of "  + String(currentValue));
                 informValue = true;
                 pinTimes[pinIndex] = time;
             }
 
             if (currentActivation != lastActivation) {
-                info(ALARM_TAG, "Pin activation changed %s to value: %i", pinName.c_str(), (currentActivation ? "enabled" : "disabled"), currentValue);
+                info(ALARM_TAG, "Pin activation changed " + pinName + " "+  (currentActivation ? "enabled" : "disabled") + " to value: " + String(currentValue));
                 informValue = true;
                 pinActivatedChange(pin, currentActivation);
                 activations[pinIndex] = currentActivation;
@@ -177,7 +157,7 @@ return false;
         }
 
         static void setPinInput(int index, AlarmPin pin) {
-            debug(ALARM_TAG,"Pin %s is type %s and mode %s",fromPinIds(pin.id).c_str(), fromPinType(pin.type).c_str(), fromPinMode(pin.mode).c_str());
+            debug(ALARM_TAG,"Pin " + fromPinIds(pin.id) + " is type " + fromPinType(pin.type) + " and mode " + fromPinMode(pin.mode));
             pinMode(pin.id, INPUT);
         }
     };

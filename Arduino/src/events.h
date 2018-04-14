@@ -1,7 +1,7 @@
 #ifndef EVENTS_H
 #define EVENTS_H
 
-#include "common/common.h"
+#include "common.h"
 
 #define EVENTS_TAG  "Events"
 
@@ -21,7 +21,7 @@ namespace {
 
     private:
         static void publish(String message) {
-            info(EVENTS_TAG, "Output event: %s", message.c_str());
+            info(EVENTS_TAG, "Output event: " +  message);
         //            Particle.publish(eventName, payload);
         }
     };

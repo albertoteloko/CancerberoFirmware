@@ -1,12 +1,12 @@
 #ifndef NODE_ENGINE_H
 #define NODE_ENGINE_H
 
-#include "common/common.h"
+#include "common.h"
 #include "log.h"
 #include "events.h"
 #include "alarm/engine.h"
 #include "alarm/config.h"
-#include "ethernet-server.h"
+//#include "ethernet-server.h"
 
 #define DEFAULT_BLINK_DURATION                          1000
 #define DEFAULT_BLINK_PERIOD                            30000
@@ -45,13 +45,13 @@ namespace {
             pinMode(LED_RED_PIN, OUTPUT);
             pinMode(SPEAKER_PIN, OUTPUT);
 
-            EthernetGateway::start();
+//            EthernetGateway::start();
             Alarm::start();
         }
 
         static void loop() {
 //            Alarm::loop();
-            EthernetGateway::loop();
+//            EthernetGateway::loop();
 
             NodeStatus currentStatus = getCurrentStatus();
 
@@ -99,7 +99,7 @@ namespace {
             } else {
                 status = newStatus;
                 String statusName = fromNodeStatus(status);
-                info(NODE_TAG, "Changed status to: %s", statusName.c_str());
+                info(NODE_TAG, "Changed status to: " + statusName);
 
                 ledOn = false;
                 beeping = false;
@@ -134,7 +134,7 @@ namespace {
                 );
             } else if (status == NS_ACTIVATING) {
                 loopLedBlink(
-                        AlarmConfig::activatingTime(),
+                        ACTIVATING_TIME,
                         DEFAULT_ACTIVATING_BEEP_DURATION,
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MIN,
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MAX
@@ -143,7 +143,7 @@ namespace {
                 digitalWrite(LED_RED_PIN, HIGH);
             } else if (status == NS_SUSPICIOUS) {
                 loopLedBlink(
-                        AlarmConfig::suspiciousTime(),
+                        SUSPICIOUS_TIME,
                         DEFAULT_SUSPICIOUS_BEEP_DURATION,
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN,
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MAX
@@ -158,7 +158,7 @@ namespace {
                 loopSpeakerIdle();
             } else if (status == NS_ACTIVATING) {
                 loopSpeakerBeep(
-                        AlarmConfig::activatingTime(),
+                        ACTIVATING_TIME,
                         DEFAULT_ACTIVATING_BEEP_FREQUENCY,
                         DEFAULT_ACTIVATING_BEEP_DURATION,
                         DEFAULT_ACTIVATING_BEEP_PERIOD_MIN,
@@ -168,7 +168,7 @@ namespace {
                 loopSpeakerActivated();
             } else if (status == NS_SUSPICIOUS) {
                 loopSpeakerBeep(
-                        AlarmConfig::suspiciousTime(),
+                        SUSPICIOUS_TIME,
                         DEFAULT_SUSPICIOUS_BEEP_FREQUENCY,
                         DEFAULT_SUSPICIOUS_BEEP_DURATION,
                         DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN,
