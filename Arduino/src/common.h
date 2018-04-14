@@ -47,8 +47,8 @@ enum PinType {
 
 enum DPinMode {
     PM_UNKNOWN = -0x01,
-    PM_HIGH = HIGH,
-    PM_LOW = LOW
+    PM_HIGH = 1,
+    PM_LOW = 0
 };
 
 enum DPinInput {
@@ -76,7 +76,15 @@ struct AlarmPin {
     PinType type = PT_UNKNOWN;
     DPinMode mode = PM_UNKNOWN;
     DPinInput input = PIN_UNKNOWN;
-    unsigned char threshold;
+    int threshold;
+
+    AlarmPin(PinIds _id, PinType _type, DPinMode _mode, DPinInput _input, int _threshold){
+        id =_id;
+        type =_type;
+        mode =_mode;
+        input =_input;
+        threshold =_threshold;
+    }
 };
 
 

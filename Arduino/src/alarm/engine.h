@@ -50,8 +50,8 @@ namespace {
         }
 
     private:
-        static bool activations[MASTER_PIN_NUMBER];
-        static long pinTimes[MASTER_PIN_NUMBER];
+        static bool activations[PIN_NUMBER];
+        static unsigned long pinTimes[PIN_NUMBER];
         static unsigned long statusTime;
 
         static int setStatus(AlarmStatus newStatus, bool forceChange, String source) {
@@ -82,19 +82,24 @@ namespace {
         static void readSensor(int pinIndex, AlarmPin pin) {
             bool informValue = false;
             String pinName = fromPinIds(pin.id);
-            long time = millis();
+            unsigned long time = millis();
+            unsigned long nextInformationTime = pinTimes[pinIndex] + PIN_INFORM_INTERVAL;
             bool lastActivation = activations[pinIndex];
-            int currentValue = 45;
+            int currentValue = -1;
 
-//            if(pin.input  == PIN_ANALOG) {
-//                currentValue = analogRead(pin.id);
-//            } else {
-//                currentValue = digitalRead(pin.id);
-//            }
+            DPinInput realPinInputType = getPinInputType(pin.id);
+
+            if((pin.input  == PIN_ANALOG) && (realPinInputType == PIN_ANALOG)) {
+                currentValue = analogRead(pin.id);
+            } else if((pin.input  == PIN_DIGITAL) && (realPinInputType == PIN_ANALOG)) {
+                currentValue = analogRead(pin.id) > 1000;
+            } else if (realPinInputType == PIN_DIGITAL){
+                currentValue = digitalRead(pin.id  - 10);
+            }
 
             bool currentActivation = isPinActivated(pin, currentValue);
 
-            if((pinTimes[pinIndex] == 0) || ((pinTimes[pinIndex] + PIN_INFORM_INTERVAL) < time)){
+            if((pinTimes[pinIndex] == 0) || (nextInformationTime < time)){
                 info(ALARM_TAG, "Informing pin " + pinName + " has value of "  + String(currentValue));
                 informValue = true;
                 pinTimes[pinIndex] = time;
@@ -112,17 +117,28 @@ namespace {
             }
         }
 
+        static DPinInput getPinInputType(PinIds pinId){
+            if(pinId == PI_UNKNOWN){
+                return PIN_UNKNOWN;
+            }else if(pinId > 10){
+                return PIN_DIGITAL;
+            }else {
+                return PIN_ANALOG;
+            }
+        }
+
 
         static bool isPinActivated(AlarmPin pin, int value){
-//            if(pin.input == PIN_DIGITAL){
-//                return (value == pin.mode);
-//            }else{
-//                if(pin.mode == PM_HIGH){
-//                    return (value >= pin.threshold);
-//                }else{
-//                    return (value <= pin.threshold);
-//                }
-//            }
+            DPinInput realPinInputType = getPinInputType(pin.id);
+            if((pin.input == PIN_DIGITAL) || ((pin.input == PIN_ANALOG) && (realPinInputType == PIN_DIGITAL))){
+                return (value == pin.mode);
+            }else{
+                if(pin.mode == PM_HIGH){
+                    return (value >= pin.threshold);
+                }else{
+                    return (value <= pin.threshold);
+                }
+            }
 return false;
         }
 
@@ -162,8 +178,8 @@ return false;
         }
     };
 
-    bool Alarm::activations[MASTER_PIN_NUMBER];
-    long Alarm::pinTimes[MASTER_PIN_NUMBER];
+    bool Alarm::activations[PIN_NUMBER];
+    unsigned long Alarm::pinTimes[PIN_NUMBER];
     unsigned long Alarm::statusTime = millis();
 }
 #endif

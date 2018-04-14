@@ -83,7 +83,7 @@ namespace {
     private:
         static RemoteLog log;
         static bool activations[MASTER_PIN_NUMBER];
-        static long pinTimes[MASTER_PIN_NUMBER];
+        static unsigned long pinTimes[MASTER_PIN_NUMBER];
         static unsigned long statusTime;
 
         static void enableOutput(int pin) {
@@ -136,7 +136,7 @@ namespace {
         static void readSensor(int pinIndex, AlarmPin pin) {
             bool informValue = false;
             String pinName = fromPinIds(pin.id);
-            long time = millis();
+            unsigned long time = millis();
             bool lastActivation = activations[pinIndex];
             int currentValue;
 
@@ -207,7 +207,7 @@ namespace {
 
     RemoteLog Alarm::log = RemoteLog("alarm-engine");
     bool Alarm::activations[MASTER_PIN_NUMBER];
-    long Alarm::pinTimes[MASTER_PIN_NUMBER];
+    unsigned long Alarm::pinTimes[MASTER_PIN_NUMBER];
     unsigned long Alarm::statusTime = millis();
 }
 #endif

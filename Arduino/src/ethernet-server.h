@@ -1,6 +1,7 @@
 #ifndef GATEWAY_ENGINE_H
 #define GATEWAY_ENGINE_H
 
+
 #include "common.h"
 #include "log.h"
 #include "command-handler.h"
@@ -18,13 +19,19 @@ namespace {
         static void start() {
             byte mac[] = NODE_MAC;
             byte ip[] = NODE_IP;
+
             Ethernet.begin(mac, ip);
             server.begin();
 
-            info(ETHERNET_TAG, "MAC: " + getMAC(mac));
-            info(ETHERNET_TAG, "IP: " + getIPConf(ip));
+            char macBuffer[17];
+            sprintf(macBuffer, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+            info(ETHERNET_TAG, "MAC:     " + String(macBuffer));
+            char ipBuffer[15];
+            sprintf(ipBuffer, "%i.%i.%i.%i", ip[0], ip[1], ip[2], ip[3]);
+            info(ETHERNET_TAG, "IP:      "  + String(ipBuffer));
             IPAddress serverIp = Ethernet.localIP();
-            info(ETHERNET_TAG, "Server real IP: " + getIP(serverIp));
+            sprintf(ipBuffer, "%i.%i.%i.%i", serverIp[0], serverIp[1], serverIp[2], serverIp[3]);
+            info(ETHERNET_TAG, "Real IP: "  + String(ipBuffer));
         }
 
         static void loop() {
@@ -57,40 +64,6 @@ namespace {
         static EthernetServer server;
         static EthernetClient client;
         static char buffer[64];
-
-        static String getMAC(byte mac[]){
-          String result = "";
-          for (int i=0; i <= 5; i++){
-            if(i!=0){
-              result += ":";
-            }
-            result += sprintf("%02X", mac[i]);
-          }
-          return result;
-        }
-
-        static String getIPConf(byte ip[]){
-          String result = "";
-          for (int i=0; i <= 3; i++){
-            if(i!=0){
-              result += ".";
-            }
-            result += ip[i];
-          }
-          return result;
-        }
-
-        static String getIP(IPAddress ip){
-          String result = "";
-          for (int i=0; i <= 3; i++){
-            if(i!=0){
-              result += ".";
-            }
-            result += ip[i];
-          }
-          return result;
-        }
-
     };
 
     EthernetServer EthernetGateway::server = EthernetServer(5555);

@@ -10,6 +10,9 @@
 #define DEFAULT_STATUS_SOURCE               "Unknown"
 #define ALARM_CONFIG_TAG                    "AlarmConfig"
 
+
+static const unsigned int PIN_NUMBER = sizeof(PINS) / sizeof(AlarmPin);
+
 namespace {
 
     struct AlarmConfigStruct {
@@ -23,17 +26,17 @@ namespace {
         static AlarmConfigStruct config;
     public:
         static void forEachPin(void (*f)(int, AlarmPin)) {
-//            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-//                (*f)(i, config.pins[i]);
-//            }
+            for (int i = 0; i < PIN_NUMBER; ++i) {
+                (*f)(i, PINS[i]);
+            }
         }
 
         static void forEachDefinedPin(void (*f)(int, AlarmPin)) {
-//            for (int i = 0; i < MASTER_PIN_NUMBER; ++i) {
-//                if ((config.pins[i].id != PI_UNKNOWN) && (config.pins[i].type != PT_UNKNOWN) && (config.pins[i].mode != PM_UNKNOWN)) {
-//                    (*f)(i, config.pins[i]);
-//                }
-//            }
+            for (int i = 0; i < PIN_NUMBER; ++i) {
+                if ((PINS[i].id != PI_UNKNOWN) && (PINS[i].type != PT_UNKNOWN) && (PINS[i].mode != PM_UNKNOWN)) {
+                    (*f)(i, PINS[i]);
+                }
+            }
         }
 
         static AlarmStatus getStatus() {

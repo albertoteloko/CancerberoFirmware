@@ -4,7 +4,7 @@
 #include "../common.h"
 
 #define NODE_NAME                       "Cocina"
-#define NODE_ID                         "ASDFGHJ"
+#define NODE_ID                         "39fdce3d-c97f-4513-b498-f62be9b1d772"
 #define VERSION                         "1.0"
 
 #define NODE_MAC                        { 0xCB, 0xCB, 0xCB, 0xCB, 0xCB, 0xCB }
@@ -13,13 +13,15 @@
 #define ACTIVATING_TIME                 15000
 #define SUSPICIOUS_TIME                 15000
 
-#define PIN_INFORM_INTERVAL             5 * 60 * 1000
-#define MASTER_PIN_NUMBER               10
+#define PIN_INFORM_INTERVAL             (unsigned long) (5 * 60 * 1000)
 
 #define ALARM_PIN                       9
 
-//#define LED_RED_PIN                   LED_BUILTIN
 #define LED_RED_PIN                     6
 #define SPEAKER_PIN                     7
+
+static const AlarmPin PINS [] =         {
+    AlarmPin(PI_A0,PT_KEY,PM_HIGH,PIN_ANALOG,510)
+};
 
 #endif
