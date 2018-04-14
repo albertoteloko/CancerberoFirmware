@@ -6,7 +6,7 @@
 #include "events.h"
 #include "alarm/engine.h"
 #include "alarm/config.h"
-//#include "ethernet-server.h"
+#include "ethernet-server.h"
 
 #define DEFAULT_BLINK_DURATION                          1000
 #define DEFAULT_BLINK_PERIOD                            30000
@@ -24,20 +24,6 @@
 #define NODE_TAG                                        "Node"
 
 namespace {
-//  class AlarmConfig {
-//       public:
-//       static AlarmStatus getStatus() {
-//           return AS_ACTIVATING;
-//       }
-//
-//       static int activatingTime() {
-//           return 15;
-//       }
-//
-//       static int suspiciousTime() {
-//           return 15;
-//       }
-//    };
     class NodeEngine {
 
     public:
@@ -45,7 +31,7 @@ namespace {
             pinMode(LED_RED_PIN, OUTPUT);
             pinMode(SPEAKER_PIN, OUTPUT);
 
-//            EthernetGateway::start();
+            EthernetGateway::start();
             Alarm::start();
         }
 
