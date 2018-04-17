@@ -19,19 +19,22 @@ namespace {
         static void start() {
             byte mac[] = NODE_MAC;
             byte ip[] = NODE_IP;
+            byte masterIp[] = MASTER_IP;
 
             Ethernet.begin(mac, ip);
             server.begin();
 
             char macBuffer[17];
             sprintf(macBuffer, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-            info(ETHERNET_TAG, "MAC:     " + String(macBuffer));
+            info(ETHERNET_TAG, "MAC:      " + String(macBuffer));
             char ipBuffer[15];
             sprintf(ipBuffer, "%i.%i.%i.%i", ip[0], ip[1], ip[2], ip[3]);
-            info(ETHERNET_TAG, "IP:      "  + String(ipBuffer));
+            info(ETHERNET_TAG, "IP:       "  + String(ipBuffer));
+            sprintf(ipBuffer, "%i.%i.%i.%i", masterIp[0], masterIp[1], masterIp[2], masterIp[3]);
+            info(ETHERNET_TAG, "Master IP:"  + String(ipBuffer));
             IPAddress serverIp = Ethernet.localIP();
             sprintf(ipBuffer, "%i.%i.%i.%i", serverIp[0], serverIp[1], serverIp[2], serverIp[3]);
-            info(ETHERNET_TAG, "Real IP: "  + String(ipBuffer));
+            info(ETHERNET_TAG, "Card IP:  "  + String(ipBuffer));
         }
 
         static void loop() {
@@ -66,7 +69,7 @@ namespace {
         static char buffer[64];
     };
 
-    EthernetServer EthernetGateway::server = EthernetServer(5555);
+    EthernetServer EthernetGateway::server = EthernetServer(NODE_PORT);
     char EthernetGateway::buffer[64];
 }
 #endif

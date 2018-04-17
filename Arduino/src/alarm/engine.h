@@ -99,6 +99,7 @@ namespace {
 
             bool currentActivation = isPinActivated(pin, currentValue);
 
+
             if((pinTimes[pinIndex] == 0) || (nextInformationTime < time)){
                 info(ALARM_TAG, "Informing pin " + pinName + " has value of "  + String(currentValue));
                 informValue = true;

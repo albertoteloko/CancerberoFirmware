@@ -9,11 +9,14 @@
 
 #define NODE_MAC                        { 0xCB, 0xCB, 0xCB, 0xCB, 0xCB, 0xCB }
 #define NODE_IP                         { 10, 10, 0, 70 }
+#define NODE_PORT                       5555
+#define MASTER_IP                       { 10, 10, 0, 2 }
+#define MASTER_PORT                     5555
 
 #define ACTIVATING_TIME                 15000
 #define SUSPICIOUS_TIME                 15000
 
-#define PIN_INFORM_INTERVAL             (unsigned long) (5 * 60 * 1000)
+#define PIN_INFORM_INTERVAL             300000
 
 #define ALARM_PIN                       9
 
