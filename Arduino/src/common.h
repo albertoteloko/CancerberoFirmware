@@ -89,32 +89,6 @@ struct AlarmPin {
 
 
 namespace {
-    PinIds toPinIds(String input) {
-        if (input.equalsIgnoreCase("D2")) {
-            return PI_D2;
-        } else if (input.equalsIgnoreCase("D3")) {
-            return PI_D3;
-        } else if (input.equalsIgnoreCase("D4")) {
-            return PI_D4;
-        } else if (input.equalsIgnoreCase("D5")) {
-            return PI_D5;
-        } else if (input.equalsIgnoreCase("A0")) {
-            return PI_A0;
-        } else if (input.equalsIgnoreCase("A1")) {
-            return PI_A1;
-        } else if (input.equalsIgnoreCase("A2")) {
-            return PI_A2;
-        } else if (input.equalsIgnoreCase("A3")) {
-            return PI_A3;
-        } else if (input.equalsIgnoreCase("A4")) {
-            return PI_A4;
-        } else if (input.equalsIgnoreCase("A5")) {
-            return PI_A5;
-        } else {
-            return PI_UNKNOWN;
-        }
-    }
-
     String fromPinIds(PinIds input) {
         switch (input) {
             case PI_D2:
@@ -142,15 +116,6 @@ namespace {
         }
     }
 
-    DPinInput toPinInput(String input) {
-        if (input.equalsIgnoreCase("DIGITAL") || input.equalsIgnoreCase("D")) {
-            return PIN_DIGITAL;
-        } else if (input.equalsIgnoreCase("ANALOG") || input.equalsIgnoreCase("A")) {
-            return PIN_ANALOG;
-        } else {
-            return PIN_UNKNOWN;
-        }
-    }
 
     String fromPinInput(DPinInput input) {
         switch (input) {
@@ -204,25 +169,6 @@ namespace {
         }
     }
 
-    NodeStatus toNodeStatus(String input) {
-        if (input.equalsIgnoreCase("IDLE")) {
-            return NS_IDLE;
-        } else if (input.equalsIgnoreCase("ACTIVATING")) {
-            return NS_ACTIVATING;
-        } else if (input.equalsIgnoreCase("ACTIVATED")) {
-            return NS_ACTIVATED;
-        } else if (input.equalsIgnoreCase("SUSPICIOUS")) {
-            return NS_SUSPICIOUS;
-        } else if (input.equalsIgnoreCase("ALARMED")) {
-            return NS_ALARMED;
-        } else if (input.equalsIgnoreCase("SAFETY")) {
-            return NS_SAFETY;
-        } else if (input.equalsIgnoreCase("SABOTAGE")) {
-            return NS_SABOTAGE;
-        } else {
-            return NS_UNKNOWN;
-        }
-    }
 
     String fromAlarmStatus(AlarmStatus input) {
         switch (input) {
@@ -245,20 +191,6 @@ namespace {
         }
     }
 
-    PinType toPinType(String input) {
-        if (input.equalsIgnoreCase("SENSOR") || input.equalsIgnoreCase("S")) {
-            return PT_SENSOR;
-        } else if (input.equalsIgnoreCase("KEY") || input.equalsIgnoreCase("K")) {
-            return PT_KEY;
-        } else if (input.equalsIgnoreCase("SABOTAGE") || input.equalsIgnoreCase("SAB")) {
-            return PT_SABOTAGE;
-        } else if (input.equalsIgnoreCase("SAFETY") || input.equalsIgnoreCase("SAF")) {
-            return PT_SAFETY;
-        } else {
-            return PT_UNKNOWN;
-        }
-    }
-
 
     String fromPinType(PinType input) {
         switch (input) {
@@ -272,16 +204,6 @@ namespace {
                 return "SAFETY";
             default:
                 return "UNKNOWN";
-        }
-    }
-
-    DPinMode toPinMode(String input) {
-        if (input.equalsIgnoreCase("LOW") || input.equalsIgnoreCase("L")) {
-            return PM_LOW;
-        } else if (input.equalsIgnoreCase("HIGH") ||input.equalsIgnoreCase("H")) {
-            return PM_HIGH;
-        } else {
-            return PM_UNKNOWN;
         }
     }
 

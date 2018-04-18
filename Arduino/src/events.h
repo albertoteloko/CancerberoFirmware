@@ -23,7 +23,7 @@ namespace {
     private:
         static EthernetClient client;
 
-        static void publish(String message) {
+        static int publish(String message) {
             byte ip[] = MASTER_IP;
             char ipBuffer[15];
             sprintf(ipBuffer, "%i.%i.%i.%i", ip[0], ip[1], ip[2], ip[3]);

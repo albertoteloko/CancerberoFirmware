@@ -26,13 +26,13 @@ namespace {
         static AlarmConfigStruct config;
     public:
         static void forEachPin(void (*f)(int, AlarmPin)) {
-            for (int i = 0; i < PIN_NUMBER; ++i) {
+            for (unsigned int i = 0; i < PIN_NUMBER; ++i) {
                 (*f)(i, PINS[i]);
             }
         }
 
         static void forEachDefinedPin(void (*f)(int, AlarmPin)) {
-            for (int i = 0; i < PIN_NUMBER; ++i) {
+            for (unsigned int i = 0; i < PIN_NUMBER; ++i) {
                 if ((PINS[i].id != PI_UNKNOWN) && (PINS[i].type != PT_UNKNOWN) && (PINS[i].mode != PM_UNKNOWN)) {
                     (*f)(i, PINS[i]);
                 }
