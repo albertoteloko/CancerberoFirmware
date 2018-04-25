@@ -1,7 +1,9 @@
 #ifndef NODE_DEFINITION_H
 #define NODE_DEFINITION_H
 
-#include "../common.h"
+#include "../common.hpp"
+
+#define LOG_LEVEL                       INFO
 
 #define NODE_NAME                       "Cocina"
 #define NODE_ID                         "39fdce3d-c97f-4513-b498-f62be9b1d772"
@@ -23,8 +25,25 @@
 #define LED_RED_PIN                     6
 #define SPEAKER_PIN                     7
 
-static const AlarmPin PINS [] =         {
-    AlarmPin(PI_A0,PT_KEY,PM_HIGH,PIN_ANALOG,510)
-};
+  struct AlarmPin {
+        PinIds id;
+        PinType type;
+        DPinMode mode;
+        DPinInput input;
+        int threshold;
+
+        AlarmPin(PinIds _id, PinType _type, DPinMode _mode, DPinInput _input, int _threshold){
+            id =_id;
+            type =_type;
+            mode =_mode;
+            input =_input;
+            threshold =_threshold;
+        }
+    };
+
+
+    static const AlarmPin PINS [] =     {
+        AlarmPin(PI_A0,PT_KEY,PM_HIGH,PIN_ANALOG,510)
+    };
 
 #endif

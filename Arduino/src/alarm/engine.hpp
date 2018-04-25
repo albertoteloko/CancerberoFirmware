@@ -1,15 +1,12 @@
 #ifndef ALARM_ENGINE_H
 #define ALARM_ENGINE_H
 
-#include "../common.h"
-#include "../log.h"
-#include "../events.h"
-#include "config.h"
+#include "../common.hpp"
+#include "../events.hpp"
+#include "config.hpp"
 
 #define NO_SOURCE               "Unknown"
-#define ALARM_TAG               "Alarm"
 
-namespace {
 
     class EventDispatcher;
 
@@ -57,14 +54,24 @@ namespace {
         static int setStatus(AlarmStatus newStatus, bool forceChange, String source) {
             AlarmStatus currentStatus = AlarmConfig::getStatus();
             if (newStatus == AS_UNKNOWN) {
-                debug(ALARM_TAG,"Unknown status");
+                #if(LOG_LEVEL<=WARN)
+                    Serial.println("Alarm - Unknown status");
+                #endif
                 return AS_UNKNOWN;
             } else if ((newStatus == currentStatus) && !forceChange) {
-                debug(ALARM_TAG,"Unchanged status: " +  fromAlarmStatus(newStatus));
+                #if(LOG_LEVEL<=WARN)
+                    Serial.print("Alarm - Unchanged status: ");
+                    Serial.println(fromAlarmStatus(newStatus));
+                #endif
                 return AS_UNCHANGED;
             } else {
                 AlarmConfig::setStatus(newStatus, source.c_str());
-                info(ALARM_TAG, "Changed status to: " + fromAlarmStatus(newStatus) + ", source: " + source);
+                #if(LOG_LEVEL<=INFO)
+                    Serial.print("Alarm - Changed status to: ");
+                    Serial.print(fromAlarmStatus(newStatus));
+                    Serial.print(", source: ");
+                    Serial.println(source);
+                #endif
 
                 statusTime = millis();
                 EventDispatcher::publishAlarmStatusChange(AlarmConfig::getStatus(), source);
@@ -101,13 +108,26 @@ namespace {
 
 
             if((pinTimes[pinIndex] == 0) || (nextInformationTime < time)){
-                info(ALARM_TAG, "Informing pin " + pinName + " has value of "  + String(currentValue));
+                #if(LOG_LEVEL<=DEBUG)
+                    Serial.print("Alarm - Informing pin ");
+                    Serial.print(pinName);
+                    Serial.print(" has value of ");
+                    Serial.println(currentValue);
+                #endif
                 informValue = true;
                 pinTimes[pinIndex] = time;
             }
 
             if (currentActivation != lastActivation) {
-                info(ALARM_TAG, "Pin activation changed " + pinName + " "+  (currentActivation ? "enabled" : "disabled") + " to value: " + String(currentValue));
+                String change = (currentActivation ? "enabled" : "disabled");
+                #if(LOG_LEVEL<=DEBUG)
+                    Serial.print("Alarm - Pin activation changed ");
+                    Serial.print(pinName);
+                    Serial.print(" ");
+                    Serial.print(change);
+                    Serial.print(" to value: ");
+                    Serial.println(currentValue);
+                #endif
                 informValue = true;
                 pinActivatedChange(pin, currentActivation);
                 activations[pinIndex] = currentActivation;
@@ -148,13 +168,19 @@ return false;
 
             if(currentActivation){
                 if (pin.type == PT_SABOTAGE) {
-                    warn(ALARM_TAG,"The node is under sabotage!");
+                    #if(LOG_LEVEL<=WARN)
+                        Serial.println("Alarm - The node is under sabotage!");
+                    #endif
                     setStatus(AS_SABOTAGE, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_SAFETY) {
-                    warn(ALARM_TAG,"The node is under safety!");
+                    #if(LOG_LEVEL<=WARN)
+                        Serial.println("Alarm - The node is under safety!");
+                    #endif
                     setStatus(AS_SAFETY, "P:" + fromPinIds(pin.id));
                 } else if ((pin.type == PT_SENSOR) && (currentStatus == AS_ACTIVATED)) {
-                    info(ALARM_TAG, "Sensor trigger!");
+                    #if(LOG_LEVEL<=DEBUG)
+                        Serial.println("Alarm - Sensor trigger!");
+                    #endif
                     setStatus(AS_SUSPICIOUS, "P:" + fromPinIds(pin.id));
                 } else if (pin.type == PT_KEY) {
                     if (currentStatus != AS_SABOTAGE) {
@@ -165,7 +191,9 @@ return false;
         }
 
       static void key(PinIds source) {
-            info(ALARM_TAG, "KEY trigger!");
+            #if(LOG_LEVEL<=DEBUG)
+                Serial.println("Alarm - KEY trigger!");
+            #endif
             if (AlarmConfig::getStatus() != AS_IDLE) {
                 setStatus(AS_IDLE, "P:" + fromPinIds(source));
             } else {
@@ -174,7 +202,14 @@ return false;
         }
 
         static void setPinInput(int index, AlarmPin pin) {
-            debug(ALARM_TAG,"Pin " + fromPinIds(pin.id) + " is type " + fromPinType(pin.type) + " and mode " + fromPinMode(pin.mode));
+            #if(LOG_LEVEL<=DEBUG)
+                Serial.print("Alarm - Pin ");
+                Serial.print(fromPinIds(pin.id));
+                Serial.print(" is type ");
+                Serial.print(fromPinType(pin.type));
+                Serial.print("  and mode ");
+                Serial.println(fromPinMode(pin.mode));
+            #endif
             pinMode(pin.id, INPUT);
         }
     };
@@ -182,5 +217,4 @@ return false;
     bool Alarm::activations[PIN_NUMBER];
     unsigned long Alarm::pinTimes[PIN_NUMBER];
     unsigned long Alarm::statusTime = millis();
-}
 #endif

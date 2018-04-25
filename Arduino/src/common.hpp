@@ -13,82 +13,71 @@
 #define INPUT_PULLUP INPUT
 #endif
 
-enum NodeStatus {
-    NS_UNCHANGED = -0x02,
-    NS_UNKNOWN = -0x01,
-    NS_IDLE = 0x01,
-    NS_ACTIVATING = 0x02,
-    NS_ACTIVATED = 0x03,
-    NS_SUSPICIOUS = 0x04,
-    NS_ALARMED = 0x05,
-    NS_SAFETY = 0x06,
-    NS_SABOTAGE = 0x07
-};
-
-enum AlarmStatus {
-    AS_UNCHANGED = -0x02,
-    AS_UNKNOWN = -0x01,
-    AS_IDLE = 0x01,
-    AS_ACTIVATING = 0x02,
-    AS_ACTIVATED = 0x03,
-    AS_SUSPICIOUS = 0x04,
-    AS_ALARMED = 0x05,
-    AS_SAFETY = 0x06,
-    AS_SABOTAGE = 0x07
-};
-
-enum PinType {
-    PT_UNKNOWN = -0x01,
-    PT_SENSOR = 0x01,
-    PT_KEY = 0x02,
-    PT_SABOTAGE = 0x03,
-    PT_SAFETY = 0x04
-};
-
-enum DPinMode {
-    PM_UNKNOWN = -0x01,
-    PM_HIGH = 1,
-    PM_LOW = 0
-};
-
-enum DPinInput {
-    PIN_UNKNOWN = -0x01,
-    PIN_DIGITAL = 0x01,
-    PIN_ANALOG = 0x02
-};
-
-enum PinIds {
-    PI_UNKNOWN = -0x01,
-    PI_A0 = 0,
-    PI_A1 = 1,
-    PI_A2 = 2,
-    PI_A3 = 3,
-    PI_A4 = 4,
-    PI_A5 = 5,
-    PI_D2 = 12,
-    PI_D3 = 13,
-    PI_D4 = 14,
-    PI_D5 = 15
-};
-
-struct AlarmPin {
-    PinIds id = PI_UNKNOWN;
-    PinType type = PT_UNKNOWN;
-    DPinMode mode = PM_UNKNOWN;
-    DPinInput input = PIN_UNKNOWN;
-    int threshold;
-
-    AlarmPin(PinIds _id, PinType _type, DPinMode _mode, DPinInput _input, int _threshold){
-        id =_id;
-        type =_type;
-        mode =_mode;
-        input =_input;
-        threshold =_threshold;
-    }
-};
+#define DEBUG       0
+#define INFO        1
+#define WARN        2
+#define ERROR       3
 
 
-namespace {
+
+    enum NodeStatus {
+        NS_UNCHANGED = -0x02,
+        NS_UNKNOWN = -0x01,
+        NS_IDLE = 0x01,
+        NS_ACTIVATING = 0x02,
+        NS_ACTIVATED = 0x03,
+        NS_SUSPICIOUS = 0x04,
+        NS_ALARMED = 0x05,
+        NS_SAFETY = 0x06,
+        NS_SABOTAGE = 0x07
+    };
+
+    enum AlarmStatus {
+        AS_UNCHANGED = -0x02,
+        AS_UNKNOWN = -0x01,
+        AS_IDLE = 0x01,
+        AS_ACTIVATING = 0x02,
+        AS_ACTIVATED = 0x03,
+        AS_SUSPICIOUS = 0x04,
+        AS_ALARMED = 0x05,
+        AS_SAFETY = 0x06,
+        AS_SABOTAGE = 0x07
+    };
+
+    enum PinType {
+        PT_UNKNOWN = -0x01,
+        PT_SENSOR = 0x01,
+        PT_KEY = 0x02,
+        PT_SABOTAGE = 0x03,
+        PT_SAFETY = 0x04
+    };
+
+    enum DPinMode {
+        PM_UNKNOWN = -0x01,
+        PM_HIGH = 1,
+        PM_LOW = 0
+    };
+
+    enum DPinInput {
+        PIN_UNKNOWN = -0x01,
+        PIN_DIGITAL = 0x01,
+        PIN_ANALOG = 0x02
+    };
+
+    enum PinIds {
+        PI_UNKNOWN = -0x01,
+        PI_A0 = 0,
+        PI_A1 = 1,
+        PI_A2 = 2,
+        PI_A3 = 3,
+        PI_A4 = 4,
+        PI_A5 = 5,
+        PI_D2 = 12,
+        PI_D3 = 13,
+        PI_D4 = 14,
+        PI_D5 = 15
+    };
+
     String fromPinIds(PinIds input) {
         switch (input) {
             case PI_D2:
@@ -217,7 +206,6 @@ namespace {
                 return "UNKNOWN";
         }
     }
-}
 
 #endif
 

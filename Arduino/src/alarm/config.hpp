@@ -2,18 +2,15 @@
 #define ALARM_CONFIG_H
 
 #include <EEPROM.h>
-#include "../common.h"
-#include "../log.h"
+#include "../common.hpp"
 
 #define SOURCE_LENGTH                       50
 
 #define DEFAULT_STATUS_SOURCE               "Unknown"
-#define ALARM_CONFIG_TAG                    "AlarmConfig"
 
 
 static const unsigned int PIN_NUMBER = sizeof(PINS) / sizeof(AlarmPin);
 
-namespace {
 
     struct AlarmConfigStruct {
         AlarmStatus status = AS_IDLE;
@@ -80,7 +77,9 @@ namespace {
             EEPROM.get(0, config);
 
             if (toAlarmStatus(fromAlarmStatus(config.status))  == AS_UNKNOWN) {
-                error(ALARM_CONFIG_TAG, "No status, setting idle one");
+                #if(LOG_LEVEL<=ERROR)
+                    Serial.println("AlarmConfig - No status, setting idle one");
+                #endif
                 config.status = AS_IDLE;
             }
 
@@ -90,5 +89,4 @@ namespace {
     };
 
     AlarmConfigStruct AlarmConfig::config = AlarmConfigStruct();
-}
 #endif

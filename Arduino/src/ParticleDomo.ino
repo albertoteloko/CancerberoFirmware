@@ -1,17 +1,18 @@
-#include "common.h"
-#include "log.h"
-#include "node-engine.h"
-
-#define TAG  "ParticleDomo.ino"
-
+#include "common.hpp"
+#include "node-engine.hpp"
 
 void setup() {
     Serial.begin(9600);
 
-//    while (!Serial) {  // wait for serial port to connect. Needed for native USB
-//    }
+    while (!Serial) {  // wait for serial port to connect. Needed for native USB
+    }
 
-    info(TAG, "Starting Node " + String(NODE_NAME) + ": v" + String(VERSION));
+    Serial.print("Starting Node ");
+    Serial.print(NODE_NAME);
+    Serial.print(": v");
+    Serial.println(VERSION);
+
+
     NodeEngine::start();
 
 }

@@ -1,12 +1,11 @@
 #ifndef NODE_ENGINE_H
 #define NODE_ENGINE_H
 
-#include "common.h"
-#include "log.h"
-#include "events.h"
-#include "alarm/engine.h"
-#include "alarm/config.h"
-#include "ethernet-server.h"
+#include "common.hpp"
+#include "events.hpp"
+#include "alarm/engine.hpp"
+#include "alarm/config.hpp"
+#include "ethernet-server.hpp"
 
 #define DEFAULT_BLINK_DURATION                          1000
 #define DEFAULT_BLINK_PERIOD                            30000
@@ -21,9 +20,6 @@
 #define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MIN              900
 #define DEFAULT_SUSPICIOUS_BEEP_PERIOD_MAX              3000
 
-#define NODE_TAG                                        "Node"
-
-namespace {
     class NodeEngine {
 
     public:
@@ -81,11 +77,17 @@ namespace {
 
         static void setStatus(NodeStatus newStatus) {
             if (newStatus == NS_UNKNOWN) {
-                debug(NODE_TAG,"Unknown status");
+                #if(LOG_LEVEL<=DEBUG)
+                    Serial.println("Node - Unknown status");
+                #endif
             } else {
                 status = newStatus;
                 String statusName = fromNodeStatus(status);
-                info(NODE_TAG, "Changed status to: " + statusName);
+
+                #if(LOG_LEVEL<=INFO)
+                    Serial.print("Node - Changed status to: ");
+                    Serial.println(statusName);
+                #endif
 
                 ledOn = false;
                 beeping = false;
@@ -273,5 +275,4 @@ namespace {
     unsigned long NodeEngine::statusTime = 0;
     unsigned long NodeEngine::beepChange = 0;
     unsigned long NodeEngine::ledChange = 0;
-}
 #endif

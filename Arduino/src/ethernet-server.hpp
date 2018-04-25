@@ -1,16 +1,12 @@
 #ifndef GATEWAY_ENGINE_H
 #define GATEWAY_ENGINE_H
 
-
-#include "common.h"
-#include "log.h"
-#include "command-handler.h"
+#include "printf.hpp"
+#include "common.hpp"
+#include "command-handler.hpp"
 
 #include <Ethernet.h>
 
-#define ETHERNET_TAG "Ethernet"
-
-namespace {
 
     class EthernetGateway {
 
@@ -24,31 +20,31 @@ namespace {
             Ethernet.begin(mac, ip);
             server.begin();
 
-            char macBuffer[17];
-            sprintf(macBuffer, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-            info(ETHERNET_TAG, "MAC:      " + String(macBuffer));
-            char ipBuffer[15];
-            sprintf(ipBuffer, "%i.%i.%i.%i", ip[0], ip[1], ip[2], ip[3]);
-            info(ETHERNET_TAG, "IP:       "  + String(ipBuffer));
-            sprintf(ipBuffer, "%i.%i.%i.%i", masterIp[0], masterIp[1], masterIp[2], masterIp[3]);
-            info(ETHERNET_TAG, "Master IP:"  + String(ipBuffer));
-            IPAddress serverIp = Ethernet.localIP();
-            sprintf(ipBuffer, "%i.%i.%i.%i", serverIp[0], serverIp[1], serverIp[2], serverIp[3]);
-            info(ETHERNET_TAG, "Card IP:  "  + String(ipBuffer));
+            #if(LOG_LEVEL<=INFO)
+                printfn("Ethernet - MAC:       %02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+                printfn("Ethernet - IP:        %i.%i.%i.%i", ip[0], ip[1], ip[2], ip[3]);
+                printfn("Ethernet - Master IP: %i.%i.%i.%i", masterIp[0], masterIp[1], masterIp[2], masterIp[3]);
+                IPAddress serverIp = Ethernet.localIP();
+                printfn("Ethernet - Card IP:   %i.%i.%i.%i", serverIp[0], serverIp[1], serverIp[2], serverIp[3]);
+            #endif
+
         }
 
         static void loop() {
             EthernetClient client = server.available();
             if (client) {
                 memset(&buffer[0], 0, sizeof(buffer));
-                info(ETHERNET_TAG, "Client connected");
+
+                #if(LOG_LEVEL<=DEBUG)
+                    Serial.println("Ethernet - Client connected");
+                #endif
+
                 unsigned int index = 0;
                 while (client.connected()) {
                     if (client.available()) {
                         char c = client.read();
                         if (c == '\n') {
                             String input = String(buffer);
-//                            debug(ETHERNET_TAG, "Received: %s");
                             client.println(CommandHandler::processInput(input));
                             break;
                         }else if (c != '\r') {
@@ -59,7 +55,10 @@ namespace {
                 client.flush();
                 delay(10);
                 client.stop();
-                info(ETHERNET_TAG, "Client disconnected");
+
+                #if(LOG_LEVEL<=DEBUG)
+                    Serial.println("Ethernet - Client disconnected");
+                #endif
             }
         }
 
@@ -71,5 +70,4 @@ namespace {
 
     EthernetServer EthernetGateway::server = EthernetServer(NODE_PORT);
     char EthernetGateway::buffer[64];
-}
 #endif
